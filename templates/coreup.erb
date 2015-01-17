@@ -6,22 +6,31 @@
 
 NAME='core01'
 DOMAIN='demo.lan'
+TMPDIR="/var/tmp/vm/${NAME}"
+IMGDIR="/root/coreos/${NAME}"
+CFGDIR="${IMGDIR}/conf"
 
 #------------------------------------------------------------------------------
-# Host network:
+# Setup:
 #------------------------------------------------------------------------------
 
-ip l s ${NAME}_eth0 &> /dev/null || ip tuntap a d ${NAME}_eth0 m tap
-brctl show br0 | grep -q ${NAME}_eth0 || brctl addif br0 ${NAME}_eth0
-ip l sh ${NAME}_eth0 | grep -q UP || ip l s dev ${NAME}_eth0 up
+[ -d $TMPDIR ] || mkdir -p $TMPDIR
+[ -d $IMGDIR ] || mkdir -p $IMGDIR
+[ -d $CFGDIR ] || mkdir -p $CFGDIR
 
-ip l s ${NAME}_eth1 &> /dev/null || ip tuntap a d ${NAME}_eth1 m tap
-brctl show br1_3 | grep -q ${NAME}_eth1 || brctl addif br1_3 ${NAME}_eth1
-ip l sh ${NAME}_eth1 | grep -q UP || ip l s dev ${NAME}_eth1 up
+[ -f ${IMGDIR}/${NAME}.img ] || \
+wget http://stable.release.core-os.net/amd64-usr/current/coreos_production_qemu_image.img.bz2 \
+-O - | bzcat > ${IMGDIR}/${NAME}.img
 
-ip l s ${NAME}_eth2 &> /dev/null || ip tuntap a d ${NAME}_eth2 m tap
-brctl show br1_6 | grep -q ${NAME}_eth2 || brctl addif br1_6 ${NAME}_eth2
-ip l sh ${NAME}_eth2 | grep -q UP || ip l s dev ${NAME}_eth2 up
+#------------------------------------------------------------------------------
+# Host TAP interfaces:
+#------------------------------------------------------------------------------
+
+for i in 0 1 2; do
+  ip l s ${NAME}_eth${i} &> /dev/null || ip tuntap a d ${NAME}_eth${i} m tap
+  brctl show br${i} | grep -q ${NAME}_eth${i} || brctl addif br${i} ${NAME}_eth${i}
+  ip l sh ${NAME}_eth${i} | grep -q UP || ip l s dev ${NAME}_eth${i} up
+done
 
 #------------------------------------------------------------------------------
 # Virtual machine:
@@ -50,21 +59,21 @@ qemu-system-x86_64 \
 -netdev tap,ifname=${NAME}_eth2,id=hostnet2,vhost=on,script=no,downscript=no \
 -device virtio-net-pci,netdev=hostnet2,id=net2,romfile=,bus=pci.0,addr=0x5 \
 \
--drive if=none,file=./coreos_production_qemu_image.img,id=drive-virtio-disk0 \
+-drive if=none,file=${IMGDIR}/${NAME},id=drive-virtio-disk0 \
 -device virtio-blk-pci,scsi=off,drive=drive-virtio-disk0,id=virtio-disk0 \
 \
--fsdev local,id=conf,security_model=none,readonly,path=/root/coreos/mount \
+-fsdev local,id=conf,security_model=none,readonly,path=${CFGDIR} \
 -device virtio-9p-pci,fsdev=conf,mount_tag=config-2 \
 \
--chardev socket,id=monitor,path=/var/tmp/vm/${NAME}_monitor.sock,server,nowait \
+-chardev socket,id=monitor,path=${TMPDIR}/monitor.sock,server,nowait \
 -mon chardev=monitor,id=monitor,mode=control \
 \
--chardev socket,id=console,path=/var/tmp/vm/${NAME}_console.sock,server,nowait \
+-chardev socket,id=console,path=${TMPDIR}/console.sock,server,nowait \
 -device isa-serial,chardev=console,id=serial0
 
 #------------------------------------------------------------------------------
 # Console:
 #------------------------------------------------------------------------------
 
-socat -,raw,echo=0 unix-connect:/var/tmp/vm/${NAME}_console.sock; reset
+socat -,raw,echo=0 unix-connect:${TMPDIR}/console.sock; reset
 
