@@ -45,7 +45,7 @@ done
 #------------------------------------------------------------------------------
 
 function genmac {
-  echo `hostname` $NAME $1 | md5sum | hexdump -n3 -e'/3 "00-16-3e" 3/1 "-%02X"'
+  echo `hostname` $NAME $1 | md5sum | hexdump -n3 -e'/3 "00:16:3e" 3/1 ":%02X"'
 }
 
 #------------------------------------------------------------------------------
@@ -66,16 +66,16 @@ qemu-system-x86_64 \
 -display none \
 -daemonize \
 \
--netdev tap,ifname=${NAME}_eth0,id=hostnet0,vhost=on,script=no,downscript=no,mac=`genmac eth0` \
--device virtio-net-pci,netdev=hostnet0,id=net0,romfile=,bus=pci.0,addr=0x3 \
+-netdev tap,ifname=${NAME}_eth0,id=hostnet0,vhost=on,script=no,downscript=no \
+-device virtio-net-pci,netdev=hostnet0,id=net0,romfile=,bus=pci.0,addr=0x3,mac=`genmac eth0` \
 \
--netdev tap,ifname=${NAME}_eth1,id=hostnet1,vhost=on,script=no,downscript=no,mac=`genmac eth1` \
--device virtio-net-pci,netdev=hostnet1,id=net1,romfile=,bus=pci.0,addr=0x4 \
+-netdev tap,ifname=${NAME}_eth1,id=hostnet1,vhost=on,script=no,downscript=no \
+-device virtio-net-pci,netdev=hostnet1,id=net1,romfile=,bus=pci.0,addr=0x4,mac=`genmac eth1` \
 \
--netdev tap,ifname=${NAME}_eth2,id=hostnet2,vhost=on,script=no,downscript=no,mac=`genmac eth2` \
--device virtio-net-pci,netdev=hostnet2,id=net2,romfile=,bus=pci.0,addr=0x5 \
+-netdev tap,ifname=${NAME}_eth2,id=hostnet2,vhost=on,script=no,downscript=no \
+-device virtio-net-pci,netdev=hostnet2,id=net2,romfile=,bus=pci.0,addr=0x5,mac=`genmac eth2` \
 \
--drive if=none,file=${IMGDIR}/${NAME},id=drive-virtio-disk0 \
+-drive if=none,file=${IMGDIR}/${NAME}.img,id=drive-virtio-disk0 \
 -device virtio-blk-pci,scsi=off,drive=drive-virtio-disk0,id=virtio-disk0 \
 \
 -fsdev local,id=conf,security_model=none,readonly,path=${CFGDIR} \
