@@ -47,7 +47,9 @@ coreos:
       command: start
   etcd:
     name: ${NAME}
-    discovery: https://discovery.etcd.io/6871b2198ad79710d56b6b580863ca5e
+    discovery: https://discovery.etcd.io/7789dbbded095bb7027e0f197864af84
+    addr: ${NAME}:4001
+    peer-addr: ${NAME}:7001
 EOF
 
 #------------------------------------------------------------------------------
