@@ -37,6 +37,19 @@ echo "hostname: ${NAME}" >> ${UDATA}
 echo "ssh_authorized_keys:" >> ${UDATA}
 cat ~/.ssh/authorized_keys | sed 's/^env.*ssh/ - ssh/' | grep "^ -" >> ${UDATA}
 
+# CoreOS:
+cat << EOF >> ${UDATA}
+coreos:
+  units:
+    - name: etcd.service
+      command: start
+    - name: fleet.service
+      command: start
+  etcd:
+    name: ${NAME}
+    discovery: https://discovery.etcd.io/6871b2198ad79710d56b6b580863ca5e
+EOF
+
 #------------------------------------------------------------------------------
 # Host TAP interfaces:
 #------------------------------------------------------------------------------
