@@ -6,21 +6,29 @@
 
 NAME='core01'
 DOMAIN='demo.lan'
-TMPDIR="/var/tmp/vm/${NAME}"
 IMGDIR="/root/coreos/${NAME}"
+RUNDIR="${IMGDIR}/run"
 CFGDIR="${IMGDIR}/conf"
+UDATA="${CFGDIR}/openstack/latest/user_data"
 
 #------------------------------------------------------------------------------
-# Setup:
+# Download the image:
 #------------------------------------------------------------------------------
 
-[ -d $TMPDIR ] || mkdir -p $TMPDIR
 [ -d $IMGDIR ] || mkdir -p $IMGDIR
-[ -d $CFGDIR ] || mkdir -p $CFGDIR
+[ -d $RUNDIR ] || mkdir -p $RUNDIR
 
 [ -f ${IMGDIR}/${NAME}.img ] || \
 wget http://stable.release.core-os.net/amd64-usr/current/coreos_production_qemu_image.img.bz2 \
 -O - | bzcat > ${IMGDIR}/${NAME}.img
+
+#------------------------------------------------------------------------------
+# cloud-config:
+#------------------------------------------------------------------------------
+
+[ -d `dirname $UDATA` ] || mkdir -p `dirname $UDATA`
+echo -e "#cloud-config\nssh_authorized_keys:" > ${UDATA}
+cat ~/.ssh/authorized_keys | sed 's/^env.*ssh/ - ssh/' | grep "^ -" >> ${UDATA}
 
 #------------------------------------------------------------------------------
 # Host TAP interfaces:
@@ -31,6 +39,14 @@ for i in 0 1 2; do
   brctl show br${i} | grep -q ${NAME}_eth${i} || brctl addif br${i} ${NAME}_eth${i}
   ip l sh ${NAME}_eth${i} | grep -q UP || ip l s dev ${NAME}_eth${i} up
 done
+
+#------------------------------------------------------------------------------
+# Deterministic MAC:
+#------------------------------------------------------------------------------
+
+function genmac {
+  echo `hostname` $NAME $1 | md5sum | hexdump -n3 -e'/3 "00-16-3e" 3/1 "-%02X"'
+}
 
 #------------------------------------------------------------------------------
 # Virtual machine:
@@ -50,13 +66,13 @@ qemu-system-x86_64 \
 -display none \
 -daemonize \
 \
--netdev tap,ifname=${NAME}_eth0,id=hostnet0,vhost=on,script=no,downscript=no \
+-netdev tap,ifname=${NAME}_eth0,id=hostnet0,vhost=on,script=no,downscript=no,mac=`genmac eth0` \
 -device virtio-net-pci,netdev=hostnet0,id=net0,romfile=,bus=pci.0,addr=0x3 \
 \
--netdev tap,ifname=${NAME}_eth1,id=hostnet1,vhost=on,script=no,downscript=no \
+-netdev tap,ifname=${NAME}_eth1,id=hostnet1,vhost=on,script=no,downscript=no,mac=`genmac eth1` \
 -device virtio-net-pci,netdev=hostnet1,id=net1,romfile=,bus=pci.0,addr=0x4 \
 \
--netdev tap,ifname=${NAME}_eth2,id=hostnet2,vhost=on,script=no,downscript=no \
+-netdev tap,ifname=${NAME}_eth2,id=hostnet2,vhost=on,script=no,downscript=no,mac=`genmac eth2` \
 -device virtio-net-pci,netdev=hostnet2,id=net2,romfile=,bus=pci.0,addr=0x5 \
 \
 -drive if=none,file=${IMGDIR}/${NAME},id=drive-virtio-disk0 \
@@ -65,15 +81,15 @@ qemu-system-x86_64 \
 -fsdev local,id=conf,security_model=none,readonly,path=${CFGDIR} \
 -device virtio-9p-pci,fsdev=conf,mount_tag=config-2 \
 \
--chardev socket,id=monitor,path=${TMPDIR}/monitor.sock,server,nowait \
+-chardev socket,id=monitor,path=${RUNDIR}/monitor.sock,server,nowait \
 -mon chardev=monitor,id=monitor,mode=control \
 \
--chardev socket,id=console,path=${TMPDIR}/console.sock,server,nowait \
+-chardev socket,id=console,path=${RUNDIR}/console.sock,server,nowait \
 -device isa-serial,chardev=console,id=serial0
 
 #------------------------------------------------------------------------------
 # Console:
 #------------------------------------------------------------------------------
 
-socat -,raw,echo=0 unix-connect:${TMPDIR}/console.sock; reset
+socat -,raw,echo=0 unix-connect:${RUNDIR}/console.sock; reset
 
