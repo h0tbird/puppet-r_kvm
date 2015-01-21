@@ -23,16 +23,22 @@ class r_kvm {
     owner  => 'root',
     group  => 'root',
     mode   => '0755',
-  }
+  } ->
 
-  file { [ '/root/coreos/core01/core01.img',
-           '/root/coreos/core02/core02.img',
-           '/root/coreos/core02/core03.img',
-           '/root/coreos/core02/core04.img' ]:
-    ensure => file,
-    source => 'http://repo01.demo.lan/coreos/coreos_qemu.img.bz2',
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0644',
+  exec { 'wget -O - http://repo01.demo.lan/coreos/coreos_qemu.img.bz2 | bzcat > /root/coreos/core01/core01.img':
+    path    => '/usr/bin',
+    creates => '/root/coreos/core01/core01.img',
+  } ->
+
+  file { [ '/root/coreos/core02/core02.img',
+           '/root/coreos/core03/core03.img',
+           '/root/coreos/core04/core04.img' ]:
+    ensure   => file,
+    source   => '/root/coreos/core01/core01.img',
+    replace  => false,
+    checksum => 'mtime',
+    owner    => 'root',
+    group    => 'root',
+    mode     => '0644',
   }
 }
