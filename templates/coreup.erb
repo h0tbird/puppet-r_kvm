@@ -50,6 +50,7 @@ cat << EOF >> ${UDATA}
 EOF
 
 # etcd:
+echo $NAME | egrep -q '01|02|03' && ( \
 cat << EOF >> ${UDATA}
   etcd:
     name: ${NAME}
@@ -57,6 +58,7 @@ cat << EOF >> ${UDATA}
     addr: ${NAME}:4001
     peer-addr: ${NAME}:7001
 EOF
+)
 
 #------------------------------------------------------------------------------
 # Host TAP interfaces:
