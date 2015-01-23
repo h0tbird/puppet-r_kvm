@@ -50,13 +50,20 @@ cat << EOF >> ${UDATA}
 EOF
 
 # etcd:
-echo $NAME | egrep -q '01|02|03' && ( \
+echo $NAME | egrep -q '01' && ( \
 cat << EOF >> ${UDATA}
   etcd:
     name: ${NAME}
-    discovery: https://discovery.etcd.io/7789dbbded095bb7027e0f197864af84
     addr: ${NAME}:4001
     peer-addr: ${NAME}:7001
+EOF
+) || (
+cat << EOF >> ${UDATA}
+  etcd:
+    name: ${NAME}
+    addr: ${NAME}:4001
+    peer-addr: ${NAME}:7001
+    peers: core01:7001
 EOF
 )
 
