@@ -95,7 +95,7 @@ qemu-system-x86_64 \
 -smp 2,sockets=2,cores=1,threads=1 \
 -m 1024 \
 -rtc base=utc \
--machine accel=kvm \
+-machine accel=kvm,mem-merge=on \
 -boot order=c,reboot-timeout=60,strict=on \
 -cpu host \
 -nodefconfig \
