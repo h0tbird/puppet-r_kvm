@@ -2,7 +2,7 @@ class r_kvm {
 
   contain ::r_base
 
-  package { ['wget','bzip2','socat','qemu-system-x86','seabios']:
+  package { ['wget','bzip2','socat','qemu-system-x86','seabios','qemu-img']:
     ensure => present,
   }
 
