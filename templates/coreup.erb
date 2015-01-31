@@ -78,6 +78,24 @@ cat << EOF >> ${UDATA}
     metadata: host=${NAME}
 EOF
 
+# write_files:
+cat << EOF >> ${UDATA}
+write_files:
+  - path: /home/core/.bashrc
+    permissions: 0644
+    owner: root
+    content: |
+      [[ \$- != *i* ]] && return
+      alias ls='ls -hF --color=auto --group-directories-first'
+      alias l='ls -l'
+      alias ll='ls -la'
+      alias grep='grep --color=auto'
+      alias dim='docker images'
+      alias dps='docker ps'
+      alias dip="docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
+      alias drm='docker rm \$(docker ps -qa)';
+EOF
+
 #------------------------------------------------------------------------------
 # Host TAP interfaces:
 #------------------------------------------------------------------------------
