@@ -12,15 +12,20 @@ CFGDIR="${IMGDIR}/conf"
 UDATA="${CFGDIR}/openstack/latest/user_data"
 
 #------------------------------------------------------------------------------
-# Download the image:
+# Download and resize the image:
 #------------------------------------------------------------------------------
 
 [ -d $IMGDIR ] || mkdir -p $IMGDIR
 [ -d $RUNDIR ] || mkdir -p $RUNDIR
 
+# download:
 [ -f ${IMGDIR}/${NAME}.img ] || \
 wget http://repo01.demo.lan/coreos/coreos_qemu.img.bz2 \
 -O - | bzcat > ${IMGDIR}/${NAME}.img
+
+# resize:
+IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
+[ "$IMGSIZE" -lt "30000000000" ] && qemu-img resize ${IMGDIR}/${NAME}.img +20G
 
 #------------------------------------------------------------------------------
 # cloud-config:
