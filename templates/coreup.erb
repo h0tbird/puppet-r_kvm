@@ -81,6 +81,10 @@ EOF
 # write_files:
 cat << EOF >> ${UDATA}
 write_files:
+  - path: /etc/systemd/system/docker.service.d/50-insecure-registry.conf
+    content: |
+      [Service]
+      Environment=DOCKER_OPTS='--insecure-registry="192.168.1.0/24"'
   - path: /home/core/.bashrc
     permissions: 0644
     owner: root
