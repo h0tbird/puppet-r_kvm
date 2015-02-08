@@ -158,8 +158,8 @@ qemu-system-x86_64 \
 -device isa-serial,chardev=console,id=serial0
 
 #------------------------------------------------------------------------------
-# Console:
+# Console (Escape with Ctrl+o):
 #------------------------------------------------------------------------------
 
-socat -,raw,echo=0 unix-connect:${RUNDIR}/console.sock; reset
+socat -,raw,echo=0,escape=0x0f unix-connect:${RUNDIR}/console.sock; reset
 
