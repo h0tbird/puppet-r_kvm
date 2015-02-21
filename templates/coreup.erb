@@ -31,55 +31,17 @@ IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size
 # cloud-config:
 #------------------------------------------------------------------------------
 
-# header:
 [ -d `dirname $UDATA` ] || mkdir -p `dirname $UDATA`
-echo "#cloud-config" > ${UDATA}
+KEYS=$(cat ~/.ssh/authorized_keys | sed 's/^env.*ssh/ - ssh/' | grep "^ -")
 
-# hostname:
-echo "hostname: ${NAME}" >> ${UDATA}
-
-# ssh_authorized_keys:
-echo "ssh_authorized_keys:" >> ${UDATA}
-cat ~/.ssh/authorized_keys | sed 's/^env.*ssh/ - ssh/' | grep "^ -" >> ${UDATA}
-
-# coreos:
-echo "coreos:" >> ${UDATA}
-
-# units:
 cat << EOF >> ${UDATA}
-  units:
-    - name: etcd.service
-      command: start
-    - name: fleet.service
-      command: start
-EOF
+#cloud-config
 
-# etcd:
-echo $NAME | egrep -q '01' && ( \
-cat << EOF >> ${UDATA}
-  etcd:
-    name: ${NAME}
-    addr: ${NAME}:4001
-    peer-addr: ${NAME}:7001
-EOF
-) || (
-cat << EOF >> ${UDATA}
-  etcd:
-    name: ${NAME}
-    addr: ${NAME}:4001
-    peer-addr: ${NAME}:7001
-    peers: core01:7001
-EOF
-)
+hostname: ${NAME}
 
-# fleet:
-cat << EOF >> ${UDATA}
-  fleet:
-    metadata: host=${NAME}
-EOF
+ssh_authorized_keys:
+${KEYS}
 
-# write_files:
-cat << EOF >> ${UDATA}
 write_files:
   - path: /etc/systemd/system/docker.service.d/50-insecure-registry.conf
     content: |
@@ -98,7 +60,23 @@ write_files:
       alias dps='docker ps'
       alias dip="docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
       alias drm='docker rm \$(docker ps -qa)';
+
+coreos:
+  units:
+    - name: etcd.service
+      command: start
+    - name: fleet.service
+      command: start
+  fleet:
+    metadata: host=${NAME}
+  etcd:
+    name: ${NAME}
+    addr: ${NAME}:4001
+    peer-addr: ${NAME}:7001
 EOF
+
+echo $NAME | egrep -q '01' || \
+echo '    peers: core01:7001' >> ${UDATA}
 
 #------------------------------------------------------------------------------
 # Host TAP interfaces:
