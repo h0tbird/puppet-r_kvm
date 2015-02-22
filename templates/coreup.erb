@@ -60,6 +60,27 @@ write_files:
       alias dps='docker ps'
       alias dip="docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
       alias drm='docker rm \$(docker ps -qa)';
+  - path: /etc/systemd/network/br0.netdev
+    permissions: 0644
+    owner: root
+    content: |
+      [NetDev]
+      Name=br0
+      Kind=bridge
+  - path: /etc/systemd/network/br1.netdev
+    permissions: 0644
+    owner: root
+    content: |
+      [NetDev]
+      Name=br1
+      Kind=bridge
+  - path: /etc/systemd/network/br2.netdev
+    permissions: 0644
+    owner: root
+    content: |
+      [NetDev]
+      Name=br2
+      Kind=bridge
 
 coreos:
   units:
