@@ -68,25 +68,25 @@ coreos:
     - name: fleet.service
       command: start
     - name: 00-br0.netdev
-      runtime: true
+      runtime: false
       content: |
         [NetDev]
         Name=br0
         Kind=bridge
     - name: 00-br1.netdev
-      runtime: true
+      runtime: false
       content: |
         [NetDev]
         Name=br1
         Kind=bridge
     - name: 00-br2.netdev
-      runtime: true
+      runtime: false
       content: |
         [NetDev]
         Name=br2
         Kind=bridge
     - name: 01-eth0.network
-      runtime: true
+      runtime: false
       content: |
         [Match]
         Name=eth0
@@ -94,7 +94,7 @@ coreos:
         [Network]
         Bridge=br0
     - name: 01-eth1.network
-      runtime: true
+      runtime: false
       content: |
         [Match]
         Name=eth1
@@ -102,7 +102,7 @@ coreos:
         [Network]
         Bridge=br1
     - name: 01-eth2.network
-      runtime: true
+      runtime: false
       content: |
         [Match]
         Name=eth2
@@ -110,7 +110,7 @@ coreos:
         [Network]
         Bridge=br2
     - name: 02-br0.network
-      runtime: true
+      runtime: false
       content: |
         [Match]
         Name=br0
@@ -118,7 +118,7 @@ coreos:
         [Network]
         DHCP=v4
     - name: 02-br1.network
-      runtime: true
+      runtime: false
       content: |
         [Match]
         Name=br1
@@ -126,7 +126,7 @@ coreos:
         [Network]
         DHCP=v4
     - name: 02-br2.network
-      runtime: true
+      runtime: false
       content: |
         [Match]
         Name=br2
