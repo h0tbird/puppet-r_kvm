@@ -20,7 +20,7 @@ UDATA="${CFGDIR}/openstack/latest/user_data"
 
 # download:
 [ -f ${IMGDIR}/${NAME}.img ] || \
-wget http://repo01.demo.lan/coreos/coreos_qemu.img.bz2 \
+wget http://data01.demo.lan/coreos/coreos_qemu.img.bz2 \
 -O - | bzcat > ${IMGDIR}/${NAME}.img
 
 # resize:
