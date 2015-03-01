@@ -25,7 +25,7 @@ class r_kvm {
     mode   => '0755',
   } ->
 
-  exec { 'wget -O - http://repo01.demo.lan/coreos/coreos_qemu.img.bz2 | bzcat > /root/coreos/core01/core01.img':
+  exec { 'wget -O - http://data01.demo.lan/coreos/coreos_qemu.img.bz2 | bzcat > /root/coreos/core01/core01.img':
     path    => '/usr/bin',
     creates => '/root/coreos/core01/core01.img',
   } ->
