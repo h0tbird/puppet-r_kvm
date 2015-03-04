@@ -149,9 +149,10 @@ echo '    peers: core01:7001' >> ${UDATA}
 #------------------------------------------------------------------------------
 
 for i in 0 1 2; do
-  ip l s ${NAME}_eth${i} &> /dev/null || ip tuntap a d ${NAME}_eth${i} m tap
-  brctl show br${i} | grep -q ${NAME}_eth${i} || brctl addif br${i} ${NAME}_eth${i}
-  ip l sh ${NAME}_eth${i} | grep -q UP || ip l s dev ${NAME}_eth${i} up
+  ip l del ${NAME}_eth${i} &> /dev/null
+  ip tuntap a d ${NAME}_eth${i} m tap
+  brctl addif br${i} ${NAME}_eth${i}
+  ip l s dev ${NAME}_eth${i} up
 done
 
 #------------------------------------------------------------------------------
@@ -200,6 +201,17 @@ qemu-system-x86_64 \
 \
 -chardev socket,id=console,path=${RUNDIR}/console.sock,server,nowait \
 -device isa-serial,chardev=console,id=serial0
+
+#------------------------------------------------------------------------------
+# One time reboot:
+#------------------------------------------------------------------------------
+
+[ ! -f ${CFGDIR}/bootstrapped ] && sleep 3 && {
+  echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
+  socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null
+  date > ${CFGDIR}/bootstrapped
+  sleep 3 && exec $0 $@
+}
 
 #------------------------------------------------------------------------------
 # Console (Escape with Ctrl+o):
