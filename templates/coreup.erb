@@ -206,11 +206,11 @@ qemu-system-x86_64 \
 # One time reboot:
 #------------------------------------------------------------------------------
 
-[ ! -f ${CFGDIR}/bootstrapped ] && sleep 3 && {
+[ ! -f ${CFGDIR}/bootstrapped ] && sleep 10 && {
   echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
   socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null
   date > ${CFGDIR}/bootstrapped
-  sleep 3 && exec $0 $@
+  sleep 5 && exec $0 $@
 }
 
 #------------------------------------------------------------------------------
