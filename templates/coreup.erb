@@ -37,6 +37,7 @@ IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size
 # cloud-config:
 #------------------------------------------------------------------------------
 
+echo 'Generating cloud-config' > $LOGFILE
 [ -d `dirname $UDATA` ] || mkdir -p `dirname $UDATA`
 KEYS=$(cat ~/.ssh/authorized_keys | sed 's/^env.*ssh/ - ssh/' | grep "^ -")
 
