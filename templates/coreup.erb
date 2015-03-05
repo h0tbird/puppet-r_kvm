@@ -28,7 +28,10 @@ UDATA="${CFGDIR}/openstack/latest/user_data"
 
 # resize:
 IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
-[ "$IMGSIZE" -lt "30000000000" ] && qemu-img resize ${IMGDIR}/${NAME}.img +20G
+[ "$IMGSIZE" -lt "30000000000" ] && {
+  echo 'Resize CoreOS disk image' > $LOGFILE
+  qemu-img resize ${IMGDIR}/${NAME}.img +20G
+}
 
 #------------------------------------------------------------------------------
 # cloud-config:
