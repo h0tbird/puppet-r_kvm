@@ -9,6 +9,7 @@ DOMAIN='demo.lan'
 IMGDIR="/root/coreos/${NAME}"
 RUNDIR="${IMGDIR}/run"
 CFGDIR="${IMGDIR}/conf"
+LOGFILE='/var/log/coreup.log'
 UDATA="${CFGDIR}/openstack/latest/user_data"
 
 #------------------------------------------------------------------------------
@@ -19,9 +20,11 @@ UDATA="${CFGDIR}/openstack/latest/user_data"
 [ -d $RUNDIR ] || mkdir -p $RUNDIR
 
 # download:
-[ -f ${IMGDIR}/${NAME}.img ] || \
-wget http://data01.demo.lan/coreos/coreos_qemu.img.bz2 \
--O - | bzcat > ${IMGDIR}/${NAME}.img
+[ -f ${IMGDIR}/${NAME}.img ] || {
+  echo 'Download CoreOS image file' > $LOGFILE
+  wget http://data01.demo.lan/coreos/coreos_qemu.img.bz2 \
+  -O - | bzcat > ${IMGDIR}/${NAME}.img
+}
 
 # resize:
 IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
