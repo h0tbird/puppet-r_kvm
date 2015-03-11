@@ -23,6 +23,7 @@ UDATA="${CFGDIR}/openstack/latest/user_data"
 # Initializations:
 #------------------------------------------------------------------------------
 
+echo >> $LOGFILE
 [ -d $IMGDIR ] || mkdir -p $IMGDIR
 [ -d $RUNDIR ] || mkdir -p $RUNDIR
 [ -d $CFGDIR ] || mkdir -p $CFGDIR
@@ -34,7 +35,7 @@ UDATA="${CFGDIR}/openstack/latest/user_data"
 
 # Download:
 [ -f ${IMGDIR}/${NAME}.img ] || {
-echo "[$NAME] Downloading CoreOS image file..." >> $LOGFILE
+  echo "$(date +'%b %d %T') [$NAME] Downloading CoreOS image file..." >> $LOGFILE
   wget http://${DATA_SERVER}/coreos/coreos_qemu.img.bz2 \
   -O - | bzcat > ${IMGDIR}/${NAME}.img
 }
@@ -42,7 +43,7 @@ echo "[$NAME] Downloading CoreOS image file..." >> $LOGFILE
 # Resize:
 IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
 [ "$IMGSIZE" -lt "30000000000" ] && {
-  echo "[$NAME] Resizing CoreOS disk image..." >> $LOGFILE
+  echo "$(date +'%b %d %T') [$NAME] Resizing CoreOS disk image..." >> $LOGFILE
   qemu-img resize ${IMGDIR}/${NAME}.img +20G &> /dev/null
 }
 
@@ -50,7 +51,7 @@ IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size
 # cloud-config:
 #------------------------------------------------------------------------------
 
-echo "[$NAME] Generating cloud-config..." >> $LOGFILE
+echo "$(date +'%b %d %T') [$NAME] Generating cloud-config..." >> $LOGFILE
 KEYS=$(cat ~/.ssh/authorized_keys | sed 's/^env.*ssh/ - ssh/' | grep "^ -")
 
 cat << EOF > ${UDATA}
@@ -167,7 +168,7 @@ echo '    peers: core01:7001' >> ${UDATA}
 # Host TAP interfaces:
 #------------------------------------------------------------------------------
 
-echo "[$NAME] Generating TAP interfaces..." >> $LOGFILE
+echo "$(date +'%b %d %T') [$NAME] Generating TAP interfaces..." >> $LOGFILE
 
 for i in 0 1 2; do
   ip l del ${NAME}_eth${i} &> /dev/null
@@ -188,7 +189,7 @@ function genmac {
 # Virtual machine:
 #------------------------------------------------------------------------------
 
-echo "[$NAME] Starting the virtual machine..." >> $LOGFILE
+echo "$(date +'%b %d %T') [$NAME] Starting the virtual machine..." >> $LOGFILE
 
 qemu-system-x86_64 \
 -enable-kvm \
@@ -230,9 +231,11 @@ qemu-system-x86_64 \
 #------------------------------------------------------------------------------
 
 [ ! -f ${CFGDIR}/bootstrapped ] && sleep 10 && {
-  echo "[$NAME] Restarting after first boot..." >> $LOGFILE
+  echo "$(date +'%b %d %T') [$NAME] Restarting after first boot..." >> $LOGFILE
   echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
   socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null
   date > ${CFGDIR}/bootstrapped
   sleep 5 && exec $0 $@
 }
+
+echo "$(date +'%b %d %T') [$NAME] Up and running!" >> $LOGFILE
