@@ -36,8 +36,8 @@ echo >> $LOGFILE
 # Download:
 [ -f ${IMGDIR}/${NAME}.img ] || {
   echo "$(date +'%b %d %T') [$NAME] Downloading CoreOS image file..." >> $LOGFILE
-  wget http://${DATA_SERVER}/coreos/coreos_qemu.img.bz2 \
-  -O - | bzcat > ${IMGDIR}/${NAME}.img
+  wget --quiet http://${DATA_SERVER}/coreos/coreos_qemu.img.bz2 \
+  -O - | bzcat > ${IMGDIR}/${NAME}.img &> /dev/null
 }
 
 # Resize:
