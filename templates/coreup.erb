@@ -4,8 +4,15 @@
 # Definitions:
 #------------------------------------------------------------------------------
 
+# Instance:
 NAME=$1
 DOMAIN='demo.lan'
+
+# Servers:
+DATA_SERVER='data01.demo.lan'
+CONTAINER_SERVER='regi01.demo.lan'
+
+# Filesystem locations:
 IMGDIR="/root/coreos/${NAME}"
 RUNDIR="${IMGDIR}/run"
 CFGDIR="${IMGDIR}/conf"
@@ -13,23 +20,29 @@ LOGFILE='/var/log/coreup.log'
 UDATA="${CFGDIR}/openstack/latest/user_data"
 
 #------------------------------------------------------------------------------
-# Download and resize the image:
+# Initializations:
 #------------------------------------------------------------------------------
 
 [ -d $IMGDIR ] || mkdir -p $IMGDIR
 [ -d $RUNDIR ] || mkdir -p $RUNDIR
+[ -d $CFGDIR ] || mkdir -p $CFGDIR
+[ -d `dirname $UDATA` ] || mkdir -p `dirname $UDATA`
 
-# download:
+#------------------------------------------------------------------------------
+# Download and resize the CoreOS image:
+#------------------------------------------------------------------------------
+
+# Download:
 [ -f ${IMGDIR}/${NAME}.img ] || {
-  echo 'Download CoreOS image file' > $LOGFILE
-  wget http://data01.demo.lan/coreos/coreos_qemu.img.bz2 \
+echo "[$NAME] Downloading CoreOS image file..." >> $LOGFILE
+  wget http://${DATA_SERVER}/coreos/coreos_qemu.img.bz2 \
   -O - | bzcat > ${IMGDIR}/${NAME}.img
 }
 
-# resize:
+# Resize:
 IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
 [ "$IMGSIZE" -lt "30000000000" ] && {
-  echo 'Resize CoreOS disk image' > $LOGFILE
+  echo "[$NAME] Resizing CoreOS disk image..." >> $LOGFILE
   qemu-img resize ${IMGDIR}/${NAME}.img +20G
 }
 
@@ -37,8 +50,7 @@ IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size
 # cloud-config:
 #------------------------------------------------------------------------------
 
-echo 'Generating cloud-config' > $LOGFILE
-[ -d `dirname $UDATA` ] || mkdir -p `dirname $UDATA`
+echo "[$NAME] Generating cloud-config..." >> $LOGFILE
 KEYS=$(cat ~/.ssh/authorized_keys | sed 's/^env.*ssh/ - ssh/' | grep "^ -")
 
 cat << EOF > ${UDATA}
@@ -53,7 +65,7 @@ write_files:
   - path: /etc/systemd/system/docker.service.d/50-insecure-registry.conf
     content: |
       [Service]
-      Environment=DOCKER_OPTS='--insecure-registry=regi01.demo.lan:5000'
+      Environment=DOCKER_OPTS='--insecure-registry=${CONTAINER_SERVER}:5000'
   - path: /home/core/.bashrc
     permissions: 0644
     owner: root
@@ -148,12 +160,14 @@ coreos:
     peer-addr: ${NAME}:7001
 EOF
 
-echo $NAME | egrep -q '01' || \
+echo $NAME | grep -q '01' || \
 echo '    peers: core01:7001' >> ${UDATA}
 
 #------------------------------------------------------------------------------
 # Host TAP interfaces:
 #------------------------------------------------------------------------------
+
+echo "[$NAME] Generating TAP interfaces..." >> $LOGFILE
 
 for i in 0 1 2; do
   ip l del ${NAME}_eth${i} &> /dev/null
@@ -173,6 +187,8 @@ function genmac {
 #------------------------------------------------------------------------------
 # Virtual machine:
 #------------------------------------------------------------------------------
+
+echo "[$NAME] Starting the virtual machine..." >> $LOGFILE
 
 qemu-system-x86_64 \
 -enable-kvm \
@@ -214,15 +230,9 @@ qemu-system-x86_64 \
 #------------------------------------------------------------------------------
 
 [ ! -f ${CFGDIR}/bootstrapped ] && sleep 10 && {
+  echo "[$NAME] Restarting after first boot..." >> $LOGFILE
   echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
   socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null
   date > ${CFGDIR}/bootstrapped
   sleep 5 && exec $0 $@
 }
-
-#------------------------------------------------------------------------------
-# Console (Escape with Ctrl+o):
-#------------------------------------------------------------------------------
-
-socat -,raw,echo=0,escape=0x0f unix-connect:${RUNDIR}/console.sock; reset
-
