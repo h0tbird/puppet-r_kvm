@@ -1,0 +1,4 @@
+#!/bin/bash
+
+r10k deploy environment -p
+puppet apply /etc/puppet/environments/production/manifests/site.pp

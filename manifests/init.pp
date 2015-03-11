@@ -6,12 +6,21 @@ class r_kvm {
     ensure => present,
   }
 
-  file { '/usr/local/sbin/coreup':
-    ensure  => present,
-    content => template("${module_name}/coreup.erb"),
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0755',
+  file {
+
+    '/usr/local/sbin/coreup':
+      ensure  => present,
+      content => template("${module_name}/coreup.erb"),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0755';
+
+    '/usr/local/sbin/pupply':
+      ensure  => present,
+      content => template("${module_name}/pupply.erb"),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0755';
   }
 
   file { [ '/root/coreos',
