@@ -43,7 +43,7 @@ echo "[$NAME] Downloading CoreOS image file..." >> $LOGFILE
 IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
 [ "$IMGSIZE" -lt "30000000000" ] && {
   echo "[$NAME] Resizing CoreOS disk image..." >> $LOGFILE
-  qemu-img resize ${IMGDIR}/${NAME}.img +20G
+  qemu-img resize ${IMGDIR}/${NAME}.img +20G &> /dev/null
 }
 
 #------------------------------------------------------------------------------
