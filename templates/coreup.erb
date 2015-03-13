@@ -24,10 +24,20 @@ UDATA="${CFGDIR}/openstack/latest/user_data"
 #------------------------------------------------------------------------------
 
 echo >> $LOGFILE
+. /etc/init.d/functions
+
 [ -d $IMGDIR ] || mkdir -p $IMGDIR
 [ -d $RUNDIR ] || mkdir -p $RUNDIR
 [ -d $CFGDIR ] || mkdir -p $CFGDIR
 [ -d `dirname $UDATA` ] || mkdir -p `dirname $UDATA`
+
+#------------------------------------------------------------------------------
+# Functions:
+#------------------------------------------------------------------------------
+
+function log {
+  echo "$(date +'%b %d %T') [$NAME] $*" >> $LOGFILE
+}
 
 #------------------------------------------------------------------------------
 # Download and resize the CoreOS image:
@@ -35,23 +45,25 @@ echo >> $LOGFILE
 
 # Download:
 [ -f ${IMGDIR}/${NAME}.img ] || {
-  echo "$(date +'%b %d %T') [$NAME] Downloading CoreOS image file..." >> $LOGFILE
+  MSG='Downloading CoreOS image file...'; log "$MSG"; set -o pipefail
   wget --quiet http://${DATA_SERVER}/coreos/coreos_qemu.img.bz2 \
   -O - | bzcat > ${IMGDIR}/${NAME}.img &> /dev/null
+  action "$MSG" test $? -eq 0
 }
 
 # Resize:
 IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
 [ "$IMGSIZE" -lt "30000000000" ] && {
-  echo "$(date +'%b %d %T') [$NAME] Resizing CoreOS disk image..." >> $LOGFILE
+  MSG='Resizing CoreOS disk image...'; log "$MSG"
   qemu-img resize ${IMGDIR}/${NAME}.img +20G &> /dev/null
+  action "$MSG" test $? -eq 0
 }
 
 #------------------------------------------------------------------------------
 # cloud-config:
 #------------------------------------------------------------------------------
 
-echo "$(date +'%b %d %T') [$NAME] Generating cloud-config..." >> $LOGFILE
+MSG='Generating cloud-config...'; log "$MSG"
 KEYS=$(cat ~/.ssh/authorized_keys | sed 's/^env.*ssh/ - ssh/' | grep "^ -")
 
 cat << EOF > ${UDATA}
@@ -163,6 +175,8 @@ EOF
 
 echo $NAME | grep -q '01' || \
 echo '    peers: core01:7001' >> ${UDATA}
+
+action "$MSG" test $? -eq 0
 
 #------------------------------------------------------------------------------
 # Host TAP interfaces:
