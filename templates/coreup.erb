@@ -23,9 +23,8 @@ UDATA="${CFGDIR}/openstack/latest/user_data"
 # Initializations:
 #------------------------------------------------------------------------------
 
-echo >> $LOGFILE
+set -o pipefail
 . /etc/init.d/functions
-
 [ -d $IMGDIR ] || mkdir -p $IMGDIR
 [ -d $RUNDIR ] || mkdir -p $RUNDIR
 [ -d $CFGDIR ] || mkdir -p $CFGDIR
@@ -39,24 +38,37 @@ function log {
   echo "$(date +'%b %d %T') [$NAME] $*" >> $LOGFILE
 }
 
+function genmac {
+  echo `hostname` $NAME $1 | md5sum | hexdump -n3 -e'/3 "00:16:3e" 3/1 ":%02X"'
+}
+
 #------------------------------------------------------------------------------
 # Download and resize the CoreOS image:
 #------------------------------------------------------------------------------
 
-# Download:
-[ -f ${IMGDIR}/${NAME}.img ] || {
-  MSG='Downloading CoreOS image file...'; log "$MSG"; set -o pipefail
+function download_coreos {
   wget --quiet http://${DATA_SERVER}/coreos/coreos_qemu.img.bz2 \
   -O - | bzcat > ${IMGDIR}/${NAME}.img &> /dev/null
-  action "$MSG" test $? -eq 0
+  return $?
 }
 
-# Resize:
+[ -f ${IMGDIR}/${NAME}.img ] || {
+  MSG='Downloading CoreOS image file...'; log "$MSG"
+  action "$MSG" download_coreos
+}
+
+#------------------------------------------------------------------------------
+# Resize the CoreOS image:
+#------------------------------------------------------------------------------
+
+function resize_image {
+  qemu-img resize ${IMGDIR}/${NAME}.img +20G &> /dev/null
+}
+
 IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
 [ "$IMGSIZE" -lt "30000000000" ] && {
   MSG='Resizing CoreOS disk image...'; log "$MSG"
-  qemu-img resize ${IMGDIR}/${NAME}.img +20G &> /dev/null
-  action "$MSG" test $? -eq 0
+  action "$MSG" resize_image
 }
 
 #------------------------------------------------------------------------------
@@ -179,77 +191,84 @@ echo '    peers: core01:7001' >> ${UDATA}
 action "$MSG" test $? -eq 0
 
 #------------------------------------------------------------------------------
-# Host TAP interfaces:
+# Generate the host TAP interfaces:
 #------------------------------------------------------------------------------
 
-echo "$(date +'%b %d %T') [$NAME] Generating TAP interfaces..." >> $LOGFILE
-
-for i in 0 1 2; do
-  ip l del ${NAME}_eth${i} &> /dev/null
-  ip tuntap a d ${NAME}_eth${i} m tap
-  brctl addif br${i} ${NAME}_eth${i}
-  ip l s dev ${NAME}_eth${i} up
-done
-
-#------------------------------------------------------------------------------
-# Deterministic MAC:
-#------------------------------------------------------------------------------
-
-function genmac {
-  echo `hostname` $NAME $1 | md5sum | hexdump -n3 -e'/3 "00:16:3e" 3/1 ":%02X"'
+function generate_tap_interfaces {
+  for i in 0 1 2; do
+    ip l del ${NAME}_eth${i} &> /dev/null
+    ip tuntap a d ${NAME}_eth${i} m tap
+    brctl addif br${i} ${NAME}_eth${i}
+    ip l s dev ${NAME}_eth${i} up
+  done
 }
 
+MSG='Generating TAP interfaces...'; log "$MSG"
+action "$MSG" generate_tap_interfaces
+
 #------------------------------------------------------------------------------
-# Virtual machine:
+# Start the virtual machine:
 #------------------------------------------------------------------------------
 
-echo "$(date +'%b %d %T') [$NAME] Starting the virtual machine..." >> $LOGFILE
+function create_vm {
+  qemu-system-x86_64 \
+  -enable-kvm \
+  -name ${NAME}.${DOMAIN} \
+  -smp sockets=2,cores=2,threads=1 \
+  -m 4096 \
+  -rtc base=utc \
+  -machine accel=kvm,mem-merge=on \
+  -boot order=c,reboot-timeout=60,strict=on \
+  -cpu host \
+  -nodefconfig \
+  -device sga \
+  -display none \
+  -daemonize \
+  \
+  -netdev tap,ifname=${NAME}_eth0,id=hostnet0,vhost=on,script=no,downscript=no \
+  -device virtio-net-pci,netdev=hostnet0,id=net0,romfile=,bus=pci.0,addr=0x3,mac=`genmac eth0` \
+  \
+  -netdev tap,ifname=${NAME}_eth1,id=hostnet1,vhost=on,script=no,downscript=no \
+  -device virtio-net-pci,netdev=hostnet1,id=net1,romfile=,bus=pci.0,addr=0x4,mac=`genmac eth1` \
+  \
+  -netdev tap,ifname=${NAME}_eth2,id=hostnet2,vhost=on,script=no,downscript=no \
+  -device virtio-net-pci,netdev=hostnet2,id=net2,romfile=,bus=pci.0,addr=0x5,mac=`genmac eth2` \
+  \
+  -drive if=none,file=${IMGDIR}/${NAME}.img,id=drive-virtio-disk0 \
+  -device virtio-blk-pci,scsi=off,drive=drive-virtio-disk0,id=virtio-disk0 \
+  \
+  -fsdev local,id=conf,security_model=none,readonly,path=${CFGDIR} \
+  -device virtio-9p-pci,fsdev=conf,mount_tag=config-2 \
+  \
+  -chardev socket,id=monitor,path=${RUNDIR}/monitor.sock,server,nowait \
+  -mon chardev=monitor,id=monitor,mode=control \
+  \
+  -chardev socket,id=console,path=${RUNDIR}/console.sock,server,nowait \
+  -device isa-serial,chardev=console,id=serial0
+}
 
-qemu-system-x86_64 \
--enable-kvm \
--name ${NAME}.${DOMAIN} \
--smp sockets=2,cores=2,threads=1 \
--m 4096 \
--rtc base=utc \
--machine accel=kvm,mem-merge=on \
--boot order=c,reboot-timeout=60,strict=on \
--cpu host \
--nodefconfig \
--device sga \
--display none \
--daemonize \
-\
--netdev tap,ifname=${NAME}_eth0,id=hostnet0,vhost=on,script=no,downscript=no \
--device virtio-net-pci,netdev=hostnet0,id=net0,romfile=,bus=pci.0,addr=0x3,mac=`genmac eth0` \
-\
--netdev tap,ifname=${NAME}_eth1,id=hostnet1,vhost=on,script=no,downscript=no \
--device virtio-net-pci,netdev=hostnet1,id=net1,romfile=,bus=pci.0,addr=0x4,mac=`genmac eth1` \
-\
--netdev tap,ifname=${NAME}_eth2,id=hostnet2,vhost=on,script=no,downscript=no \
--device virtio-net-pci,netdev=hostnet2,id=net2,romfile=,bus=pci.0,addr=0x5,mac=`genmac eth2` \
-\
--drive if=none,file=${IMGDIR}/${NAME}.img,id=drive-virtio-disk0 \
--device virtio-blk-pci,scsi=off,drive=drive-virtio-disk0,id=virtio-disk0 \
-\
--fsdev local,id=conf,security_model=none,readonly,path=${CFGDIR} \
--device virtio-9p-pci,fsdev=conf,mount_tag=config-2 \
-\
--chardev socket,id=monitor,path=${RUNDIR}/monitor.sock,server,nowait \
--mon chardev=monitor,id=monitor,mode=control \
-\
--chardev socket,id=console,path=${RUNDIR}/console.sock,server,nowait \
--device isa-serial,chardev=console,id=serial0
+MSG='Starting the virtual machine...'; log "$MSG"
+action "$MSG" create_vm
 
 #------------------------------------------------------------------------------
 # One time reboot:
 #------------------------------------------------------------------------------
 
-[ ! -f ${CFGDIR}/bootstrapped ] && sleep 10 && {
-  echo "$(date +'%b %d %T') [$NAME] Restarting after first boot..." >> $LOGFILE
+function reboot_vm {
+  sleep 10
   echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
   socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null
-  date > ${CFGDIR}/bootstrapped
-  sleep 5 && exec $0 $@
+  date > ${CFGDIR}/bootstrapped; sleep 5
 }
 
-echo "$(date +'%b %d %T') [$NAME] Up and running!" >> $LOGFILE
+[ ! -f ${CFGDIR}/bootstrapped ] && {
+  MSG='Restarting after first boot...'; log "$MSG"
+  action "$MSG" reboot_vm
+  exec $0 $@
+}
+
+#------------------------------------------------------------------------------
+# End:
+#------------------------------------------------------------------------------
+
+log 'Up and running!'
