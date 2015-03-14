@@ -52,7 +52,7 @@ function is_ssh_alive {
 }
 
 function hostname_not_in_use {
-  ! ping -c1 $NAME.$DOMAIN &> /dev/null
+  ! ping -c1 -W2 $NAME.$DOMAIN &> /dev/null
 }
 
 #------------------------------------------------------------------------------
