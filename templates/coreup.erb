@@ -43,6 +43,13 @@ function genmac {
   echo `hostname` $NAME $1 | md5sum | hexdump -n3 -e'/3 "00:16:3e" 3/1 ":%02X"'
 }
 
+function is_alive {
+  RETRIES=20; while [ $RETRIES -gt 0 ]; do
+    (echo > /dev/tcp/${NAME}/22) &> /dev/null && return 0
+    sleep 1; RETRIES=$((RETRIES - 1))
+  done; return 1
+}
+
 #------------------------------------------------------------------------------
 # Check if VM is already running or we reached MAXVMS:
 #------------------------------------------------------------------------------
@@ -283,8 +290,9 @@ function reboot_vm {
 }
 
 #------------------------------------------------------------------------------
-# End:
+# Test if port 22 is listening:
 #------------------------------------------------------------------------------
 
-MSG='Up and running!'; log "$MSG"
-action "$MSG" true
+MSG='Testing SSH port...'; log "$MSG"
+(action "$MSG" is_alive) && log 'SSH port is listening' || \
+log 'SSH port failed to connect'
