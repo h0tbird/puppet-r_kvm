@@ -71,7 +71,7 @@ log 'OK! Not in use yet' || {
 
 # Already running MAXVMS?
 MSG="Testing if already running ${MAXVMS} VMs"; log "$MSG"
-(action "$MSG" [ `pgrep -c qemu-system` -ge $MAXVMS ]) && \
+(action "$MSG" [ `pgrep -c qemu-system` -lt $MAXVMS ]) && \
 log 'OK! Limit not reached yet' || {
   log "Ops! Limit of ${MAXVMS} reached"; exit 1
 }
