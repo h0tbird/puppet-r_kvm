@@ -276,16 +276,21 @@ action "$MSG" create_vm
 # One time reboot:
 #------------------------------------------------------------------------------
 
-function reboot_vm {
-  sleep 10
+function powerdown_vm {
   echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
   socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null
-  date > ${CFGDIR}/bootstrapped; sleep 5
+  date > ${CFGDIR}/bootstrapped; sleep 3
 }
 
 [ ! -f ${CFGDIR}/bootstrapped ] && {
+
+  MSG='Testing SSH port...'; log "$MSG"
+  (action "$MSG" is_alive) && log 'SSH port is listening' || {
+    log 'SSH port failed to connect'; exit 1
+  }
+
   MSG='Restarting after first boot...'; log "$MSG"
-  action "$MSG" reboot_vm
+  action "$MSG" powerdown_vm
   exec $0 $@
 }
 
@@ -294,5 +299,6 @@ function reboot_vm {
 #------------------------------------------------------------------------------
 
 MSG='Testing SSH port...'; log "$MSG"
-(action "$MSG" is_alive) && log 'SSH port is listening' || \
-log 'SSH port failed to connect'
+(action "$MSG" is_alive) && log 'SSH port is listening' || {
+  log 'SSH port failed to connect'; exit 1
+}
