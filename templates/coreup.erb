@@ -56,21 +56,24 @@ function is_alive {
 #------------------------------------------------------------------------------
 
 # VM already running?
-[ `pgrep -cf "qemu.*${NAME}"` -gt 0 ] && {
-  action "${NAME} VM is already running" true
-  exit 0
+MSG='Testing if VM is already running...'; log "$MSG"
+action "$MSG" [ `pgrep -cf "qemu.*${NAME}"` -eq 0 ] && \
+log 'OK! Not running yet' || {
+  log 'Ops! This VM is already running'; exit 0
 }
 
 # Hostname in use?
-ping -c1 $NAME.$DOMAIN &> /dev/null && {
-  action "'$NAME' hostname is in use somewhere" false
-  exit 1
+MSG='Testing if hostname is already in use...'; log "$MSG"
+action "$MSG" ping -c1 $NAME.$DOMAIN &> /dev/null && \
+log 'OK! Not in use yet' || {
+  log 'Ops! This hostname is already in use'; exit 1
 }
 
 # Already running MAXVMS?
-[ `pgrep -c qemu-system` -ge $MAXVMS ] && {
-  action "Already running ${MAXVMS} VMs" false
-  exit 1
+MSG="Testing if already running ${MAXVMS} VMs"; log "$MSG"
+action "$MSG" [ `pgrep -c qemu-system` -ge $MAXVMS ] && \
+log 'OK! Limit not reached yet' || {
+  log "Ops! Limit of ${MAXVMS} reached"; exit 1
 }
 
 #------------------------------------------------------------------------------
