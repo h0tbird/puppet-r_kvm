@@ -61,6 +61,12 @@ function is_alive {
   exit 0
 }
 
+# Hostname in use?
+ping -c1 $NAME.$DOMAIN &> /dev/null && {
+  action "'$NAME' hostname is in use somewhere" false
+  exit 1
+}
+
 # Already running MAXVMS?
 [ `pgrep -c qemu-system` -ge $MAXVMS ] && {
   action "Already running ${MAXVMS} VMs" false
@@ -296,7 +302,8 @@ MSG='Starting the virtual machine...'; log "$MSG"
 function powerdown_vm {
   (echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
   socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null) || return 1
-  date > ${CFGDIR}/bootstrapped; sleep 3; return 0
+  sleep 3 && pkill -f "qemu.*${NAME}"; date > ${CFGDIR}/bootstrapped
+  return 0
 }
 
 [ ! -f ${CFGDIR}/bootstrapped ] && {
