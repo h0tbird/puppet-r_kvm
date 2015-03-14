@@ -48,12 +48,12 @@ function genmac {
 #------------------------------------------------------------------------------
 
 [ `pgrep -cf "qemu.*${NAME}"` -gt 0 ] && {
-  success "${NAME} VM is already running"
+  action "${NAME} VM is already running" true
   exit 0
 }
 
 [ `pgrep -c qemu-system` -ge $MAXVMS ] && {
-  failure "Already running ${MAXVMS} VMs"
+  action "Already running ${MAXVMS} VMs" false
   exit 1
 }
 
@@ -287,4 +287,4 @@ function reboot_vm {
 #------------------------------------------------------------------------------
 
 MSG='Up and running!'; log "$MSG"
-success "$MSG"
+action "$MSG" true
