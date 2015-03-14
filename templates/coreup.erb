@@ -67,7 +67,7 @@ log 'Starting now...'
 }
 
 #------------------------------------------------------------------------------
-# Download and resize the CoreOS image:
+# Download and uncompress the CoreOS image:
 #------------------------------------------------------------------------------
 
 function download_coreos {
@@ -78,7 +78,9 @@ function download_coreos {
 
 [ -f ${IMGDIR}/${NAME}.img ] || {
   MSG='Downloading CoreOS image file...'; log "$MSG"
-  action "$MSG" download_coreos
+  (action "$MSG" download_coreos) && log 'OK! Download completed' || {
+    log 'Ops! Unable to download or uncompress the image'; exit 1
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -86,13 +88,16 @@ function download_coreos {
 #------------------------------------------------------------------------------
 
 function resize_image {
-  qemu-img resize ${IMGDIR}/${NAME}.img +20G &> /dev/null
+  qemu-img resize ${IMGDIR}/${NAME}.img +20G &> /dev/null && \
+  return 0 || return 1
 }
 
 IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
 [ "$IMGSIZE" -lt "30000000000" ] && {
   MSG='Resizing CoreOS disk image...'; log "$MSG"
-  action "$MSG" resize_image
+  (action "$MSG" resize_image) && log 'OK! Image has new size' || {
+    log 'Ops! Unable to resize the image'; exit 1
+  }
 }
 
 #------------------------------------------------------------------------------
