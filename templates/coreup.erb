@@ -52,7 +52,7 @@ function genmac {
   exit 0
 }
 
-[ `pgrep -c qemu-system` -gt $MAXVMS ] && {
+[ `pgrep -c qemu-system` -ge $MAXVMS ] && {
   action "Already running ${MAXVMS} VMs" true
   exit 0
 }
