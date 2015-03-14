@@ -20,27 +20,28 @@ CFGDIR="${IMGDIR}/conf"
 LOGFILE='/var/log/coreup.log'
 UDATA="${CFGDIR}/openstack/latest/user_data"
 
+# Host resources:
+HOST_CORES=`grep -c processor /proc/cpuinfo`
+HOST_RAM=`free -m | awk '/Mem:/ {print $2}'`
+
 #------------------------------------------------------------------------------
 # Initializations:
 #------------------------------------------------------------------------------
 
 set -o pipefail
 . /etc/init.d/functions
+
 [ -d $IMGDIR ] || mkdir -p $IMGDIR
 [ -d $RUNDIR ] || mkdir -p $RUNDIR
 [ -d $CFGDIR ] || mkdir -p $CFGDIR
 [ -d `dirname $UDATA` ] || mkdir -p `dirname $UDATA`
 
 #------------------------------------------------------------------------------
-# Functions:
+# Common functions:
 #------------------------------------------------------------------------------
 
 function log {
   echo "$(date +'%b %d %T') [$NAME] $*" >> $LOGFILE
-}
-
-function genmac {
-  echo `hostname` $NAME $1 | md5sum | hexdump -n3 -e'/3 "00:16:3e" 3/1 ":%02X"'
 }
 
 function is_alive {
@@ -50,17 +51,17 @@ function is_alive {
   done; return 1
 }
 
-log 'Starting now...'
-
 #------------------------------------------------------------------------------
-# Check if VM is already running or we reached MAXVMS:
+# Checks:
 #------------------------------------------------------------------------------
 
+# VM already running?
 [ `pgrep -cf "qemu.*${NAME}"` -gt 0 ] && {
   action "${NAME} VM is already running" true
   exit 0
 }
 
+# Already running MAXVMS?
 [ `pgrep -c qemu-system` -ge $MAXVMS ] && {
   action "Already running ${MAXVMS} VMs" false
   exit 1
@@ -241,12 +242,17 @@ MSG='Generating TAP interfaces...'; log "$MSG"
 # Start the virtual machine:
 #------------------------------------------------------------------------------
 
+function genmac {
+  echo `hostname` $NAME $1 | md5sum | \
+  hexdump -n3 -e'/3 "00:16:3e" 3/1 ":%02X"'
+}
+
 function create_vm {
   qemu-system-x86_64 \
   -enable-kvm \
   -name ${NAME}.${DOMAIN} \
-  -smp sockets=2,cores=2,threads=1 \
-  -m 4096 \
+  -smp sockets=$(($HOST_CORES / $MAXVMS)),cores=$(($HOST_CORES / $MAXVMS)),threads=1 \
+  -m $(($HOST_RAM / $MAXVMS)) \
   -rtc base=utc \
   -machine accel=kvm,mem-merge=on \
   -boot order=c,reboot-timeout=60,strict=on \
