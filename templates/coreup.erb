@@ -64,7 +64,7 @@ log 'OK! Not running yet' || {
 
 # Hostname in use?
 MSG='Testing if hostname is already in use...'; log "$MSG"
-(action "$MSG" ping -c1 $NAME.$DOMAIN &> /dev/null) && \
+(action "$MSG" ! ping -c1 $NAME.$DOMAIN &> /dev/null) && \
 log 'OK! Not in use yet' || {
   log 'Ops! This hostname is already in use'; exit 1
 }
