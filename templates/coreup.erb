@@ -44,11 +44,13 @@ function genmac {
 }
 
 function is_alive {
-  RETRIES=20; while [ $RETRIES -gt 0 ]; do
+  RETRIES=30; while [ $RETRIES -gt 0 ]; do
     (echo > /dev/tcp/${NAME}/22) &> /dev/null && return 0
     sleep 1; RETRIES=$((RETRIES - 1))
   done; return 1
 }
+
+log 'Starting now...'
 
 #------------------------------------------------------------------------------
 # Check if VM is already running or we reached MAXVMS:
@@ -266,11 +268,13 @@ function create_vm {
   -mon chardev=monitor,id=monitor,mode=control \
   \
   -chardev socket,id=console,path=${RUNDIR}/console.sock,server,nowait \
-  -device isa-serial,chardev=console,id=serial0
+  -device isa-serial,chardev=console,id=serial0 && return 0 || return 1
 }
 
 MSG='Starting the virtual machine...'; log "$MSG"
-action "$MSG" create_vm
+(action "$MSG" create_vm) && log 'VM is running' || {
+  log 'Unable to start VM'; exit 1
+}
 
 #------------------------------------------------------------------------------
 # One time reboot:
