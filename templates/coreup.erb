@@ -221,14 +221,16 @@ action "$MSG" test $? -eq 0
 function generate_tap_interfaces {
   for i in 0 1 2; do
     ip l del ${NAME}_eth${i} &> /dev/null
-    ip tuntap a d ${NAME}_eth${i} m tap
-    brctl addif br${i} ${NAME}_eth${i}
-    ip l s dev ${NAME}_eth${i} up
-  done
+    ip tuntap a d ${NAME}_eth${i} m tap || return 1
+    brctl addif br${i} ${NAME}_eth${i} || return 1
+    ip l s dev ${NAME}_eth${i} up || return 1
+  done; return 0
 }
 
 MSG='Generating TAP interfaces...'; log "$MSG"
-action "$MSG" generate_tap_interfaces
+(action "$MSG" generate_tap_interfaces) && log 'OK! Interfaces are UP' || {
+  log 'Ops! Unable to setup the interfaces'; exit 1
+}
 
 #------------------------------------------------------------------------------
 # Start the virtual machine:
@@ -272,8 +274,8 @@ function create_vm {
 }
 
 MSG='Starting the virtual machine...'; log "$MSG"
-(action "$MSG" create_vm) && log 'VM is running' || {
-  log 'Unable to start VM'; exit 1
+(action "$MSG" create_vm) && log 'OK! VM is running' || {
+  log 'Ops! Unable to start VM'; exit 1
 }
 
 #------------------------------------------------------------------------------
@@ -289,13 +291,13 @@ function powerdown_vm {
 [ ! -f ${CFGDIR}/bootstrapped ] && {
 
   MSG='Testing SSH port...'; log "$MSG"
-  (action "$MSG" is_alive) && log 'SSH port is listening' || {
-    log 'SSH port failed to connect'; exit 1
+  (action "$MSG" is_alive) && log 'OK! SSH port is listening' || {
+    log 'Ops! SSH port failed to connect'; exit 1
   }
 
   MSG='Restarting after first boot...'; log "$MSG"
-  (action "$MSG" powerdown_vm) && log 'System powerdown' || {
-    log 'Unable to powerdown'; exit 1
+  (action "$MSG" powerdown_vm) && log 'OK! System is down' || {
+    log 'Ops! Unable to powerdown'; exit 1
   }
 
   exec $0 $@
@@ -306,6 +308,6 @@ function powerdown_vm {
 #------------------------------------------------------------------------------
 
 MSG='Testing SSH port...'; log "$MSG"
-(action "$MSG" is_alive) && log 'SSH port is listening' || {
-  log 'SSH port failed to connect'; exit 1
+(action "$MSG" is_alive) && log 'OK! SSH port is listening' || {
+  log 'Ops! SSH port failed to connect'; exit 1
 }
