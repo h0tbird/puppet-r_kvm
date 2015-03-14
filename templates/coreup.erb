@@ -277,9 +277,9 @@ action "$MSG" create_vm
 #------------------------------------------------------------------------------
 
 function powerdown_vm {
-  echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
-  socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null
-  date > ${CFGDIR}/bootstrapped; sleep 3
+  (echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
+  socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null) || return 1
+  date > ${CFGDIR}/bootstrapped; sleep 3; return 0
 }
 
 [ ! -f ${CFGDIR}/bootstrapped ] && {
@@ -290,7 +290,10 @@ function powerdown_vm {
   }
 
   MSG='Restarting after first boot...'; log "$MSG"
-  action "$MSG" powerdown_vm
+  (action "$MSG" powerdown_vm) && log 'System powerdown' || {
+    log 'Unable to powerdown'; exit 1
+  }
+
   exec $0 $@
 }
 
