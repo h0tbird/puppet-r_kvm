@@ -4,9 +4,10 @@
 # Definitions:
 #------------------------------------------------------------------------------
 
-# Instance:
+# Instances:
 NAME=$1
 DOMAIN='demo.lan'
+MAXVMS=4
 
 # Servers:
 DATA_SERVER='data01.demo.lan'
@@ -43,11 +44,16 @@ function genmac {
 }
 
 #------------------------------------------------------------------------------
-# Check if VM is already running:
+# Check if VM is already running or we reached MAXVMS:
 #------------------------------------------------------------------------------
 
-[[ `pgrep -cf "qemu.*${NAME}"` -gt 0 ]] && {
+[ `pgrep -cf "qemu.*${NAME}"` -gt 0 ] && {
   action "${NAME} VM is already running" true
+  exit 0
+}
+
+[ `pgrep -c qemu-system` -gt $MAXVMS ] && {
+  action "Already running ${MAXVMS} VMs" true
   exit 0
 }
 
