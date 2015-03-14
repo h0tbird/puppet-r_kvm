@@ -60,21 +60,21 @@ function hostname_not_in_use {
 #------------------------------------------------------------------------------
 
 # Is the VM already running?
-MSG='Check VM is not running...'; log "$MSG"
+MSG='Checking VM is not running...'; log "$MSG"
 (action "$MSG" [ `pgrep -cf "qemu.*${NAME}"` -eq 0 ]) && \
 log 'OK! Not running yet' || {
   log 'Ops! This VM is already running'; exit 0
 }
 
 # Is the hostname in use?
-MSG='Check hostname is not in use...'; log "$MSG"
+MSG='Checking hostname is not in use...'; log "$MSG"
 (action "$MSG" hostname_not_in_use) && \
 log 'OK! Not in use yet' || {
   log 'Ops! This hostname is already in use'; exit 1
 }
 
 # Already running MAXVMS?
-MSG='Check VM limit is not reached...'; log "$MSG"
+MSG='Checking VM limit is not reached...'; log "$MSG"
 (action "$MSG" [ `pgrep -c qemu-system` -lt $MAXVMS ]) && \
 log 'OK! Limit not reached yet' || {
   log "Ops! Limit of ${MAXVMS} reached"; exit 1
