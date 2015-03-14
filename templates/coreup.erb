@@ -44,11 +44,15 @@ function log {
   echo "$(date +'%b %d %T') [$NAME] $*" >> $LOGFILE
 }
 
-function is_alive {
+function is_ssh_alive {
   RETRIES=30; while [ $RETRIES -gt 0 ]; do
     (echo > /dev/tcp/${NAME}/22) &> /dev/null && return 0
     sleep 1; RETRIES=$((RETRIES - 1))
   done; return 1
+}
+
+function hostname_not_in_use {
+  ! ping -c1 $NAME.$DOMAIN &> /dev/null
 }
 
 #------------------------------------------------------------------------------
@@ -64,7 +68,7 @@ log 'OK! Not running yet' || {
 
 # Hostname in use?
 MSG='Testing if hostname is already in use...'; log "$MSG"
-(action "$MSG" ! ping -c1 $NAME.$DOMAIN &> /dev/null) && \
+(action "$MSG" hostname_not_in_use) && \
 log 'OK! Not in use yet' || {
   log 'Ops! This hostname is already in use'; exit 1
 }
@@ -313,7 +317,7 @@ function powerdown_vm {
 [ ! -f ${CFGDIR}/bootstrapped ] && {
 
   MSG='Testing SSH port...'; log "$MSG"
-  (action "$MSG" is_alive) && log 'OK! SSH port is listening' || {
+  (action "$MSG" is_ssh_alive) && log 'OK! SSH port is listening' || {
     log 'Ops! SSH port failed to connect'; exit 1
   }
 
@@ -330,6 +334,6 @@ function powerdown_vm {
 #------------------------------------------------------------------------------
 
 MSG='Testing SSH port...'; log "$MSG"
-(action "$MSG" is_alive) && log 'OK! SSH port is listening' || {
+(action "$MSG" is_ssh_alive) && log 'OK! SSH port is listening' || {
   log 'Ops! SSH port failed to connect'; exit 1
 }
