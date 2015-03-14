@@ -100,6 +100,7 @@ function resize_image {
 }
 
 IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
+
 [ "$IMGSIZE" -lt "30000000000" ] && {
   MSG='Resizing CoreOS disk image...'; log "$MSG"
   (action "$MSG" resize_image) && log 'OK! Image has new size' || {
