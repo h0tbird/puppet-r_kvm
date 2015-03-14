@@ -48,8 +48,8 @@ function genmac {
 
 function download_coreos {
   wget --quiet http://${DATA_SERVER}/coreos/coreos_qemu.img.bz2 \
-  -O - | bzcat > ${IMGDIR}/${NAME}.img &> /dev/null
-  return $?
+  -O - | bzcat > ${IMGDIR}/${NAME}.img
+  [[ $? -ne 0 || ! -s ${IMGDIR}/${NAME}.img ]] && return 1 || return 0
 }
 
 [ -f ${IMGDIR}/${NAME}.img ] || {
