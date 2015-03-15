@@ -1,4 +1,4 @@
 #!/bin/bash
 
-RUNDIR="/root/core/${1}/run"
+RUNDIR="/root/coreos/${1}/run"
 socat -,raw,echo=0,escape=0x0f unix-connect:${RUNDIR}/console.sock
