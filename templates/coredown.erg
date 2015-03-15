@@ -1,0 +1,5 @@
+#!/bin/bash
+
+RUNDIR="/root/core/${1}/run"
+echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
+socat - unix-connect:${RUNDIR}/monitor.sock
