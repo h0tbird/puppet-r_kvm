@@ -21,6 +21,20 @@ class r_kvm {
       owner   => 'root',
       group   => 'root',
       mode    => '0755';
+
+    '/usr/local/sbin/coretach':
+      ensure  => present,
+      content => template("${module_name}/coretach.erb"),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0755';
+
+    '/usr/local/sbin/coredown':
+      ensure  => present,
+      content => template("${module_name}/coredown.erb"),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0755';
   }
 
   file { [ '/root/coreos',
