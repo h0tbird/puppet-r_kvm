@@ -1,5 +1,21 @@
 #!/bin/bash
 
+#------------------------------------------------------------------------------
+# Initializations:
+#------------------------------------------------------------------------------
+
+set -o pipefail
+. /etc/init.d/functions
 RUNDIR="/root/coreos/${1}/run"
-echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
-socat - unix-connect:${RUNDIR}/monitor.sock
+
+#------------------------------------------------------------------------------
+# Powerdown:
+#------------------------------------------------------------------------------
+
+function powerdown_vm {
+  (echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
+  socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null) || return 1
+  sleep 3 && pkill -f "qemu.*${1}"; return 0
+}
+
+action "System ${1} powerdown..." powerdown_vm
