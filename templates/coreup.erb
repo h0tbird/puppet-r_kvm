@@ -310,8 +310,10 @@ MSG='Starting the virtual machine...'; log "$MSG"
 function powerdown_vm {
   (echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
   socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null) || return 1
-  sleep 3 && pkill -f "qemu.*${NAME}"; date > ${CFGDIR}/bootstrapped
-  return 0
+  RETRIES=5; while [ $RETRIES -gt 0 ]; do
+    (! pgrep -f "qemu.*${NAME}") &> /dev/null && return 0
+    sleep 1; RETRIES=$((RETRIES - 1))
+  done; pkill -f "qemu.*${NAME}" && return 0 || return 1
 }
 
 [ ! -f ${CFGDIR}/bootstrapped ] && {
@@ -326,6 +328,7 @@ function powerdown_vm {
     log 'Ops! Unable to powerdown'; exit 1
   }
 
+  date > ${CFGDIR}/bootstrapped
   exec $0 $@
 }
 

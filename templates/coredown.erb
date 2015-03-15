@@ -18,7 +18,7 @@ function powerdown_vm {
   RETRIES=5; while [ $RETRIES -gt 0 ]; do
     (! pgrep -f "qemu.*${1}") &> /dev/null && return 0
     sleep 1; RETRIES=$((RETRIES - 1))
-  done; pkill -f "qemu.*${1}"; return 0
+  done; pkill -f "qemu.*${1}" && return 0 || return 1
 }
 
 action "System ${1} powerdown..." powerdown_vm
