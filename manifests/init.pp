@@ -6,62 +6,53 @@ class r_kvm {
     ensure => present,
   }
 
-  file {
+  ['coreup', 'pupply', 'coretach', 'coredown'].each |$value| {
 
-    '/usr/local/sbin/coreup':
+    file { "/usr/local/sbin/${value}":
       ensure  => present,
-      content => template("${module_name}/coreup.erb"),
+      content => template("${module_name}/${value}.erb"),
       owner   => 'root',
       group   => 'root',
-      mode    => '0755';
-
-    '/usr/local/sbin/pupply':
-      ensure  => present,
-      content => template("${module_name}/pupply.erb"),
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0755';
-
-    '/usr/local/sbin/coretach':
-      ensure  => present,
-      content => template("${module_name}/coretach.erb"),
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0755';
-
-    '/usr/local/sbin/coredown':
-      ensure  => present,
-      content => template("${module_name}/coredown.erb"),
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0755';
+      mode    => '0755',
+    }
   }
 
-  file { [ '/root/coreos',
-           '/root/coreos/core01',
-           '/root/coreos/core02',
-           '/root/coreos/core03',
-           '/root/coreos/core04' ]:
+  $i = ("${::hostname}".match(/kvm(\d+)/)[1] - 1) * 4
+  $a = sprintf("%02d", $i+1)
+  $b = sprintf("%02d", $i+4)
+
+  range("core${a}", "core${b}").each |$value| {
+
+    file {
+
+      "/root/coreos/${value}":
+        ensure => directory,
+        owner  => 'root',
+        group  => 'root',
+        mode   => '0755';
+
+      "/root/coreos/${value}/${value}.img":
+        ensure   => file,
+        source   => '/root/coreos/common/coreos.img',
+        replace  => false,
+        checksum => 'mtime',
+        owner    => 'root',
+        group    => 'root',
+        mode     => '0644',
+        require  => Exec['download_coreos'];
+    }
+  }
+
+  file { ['/root/coreos','/root/coreos/common']:
     ensure => directory,
     owner  => 'root',
     group  => 'root',
     mode   => '0755',
   } ->
 
-  exec { 'wget -O - http://data01.demo.lan/coreos/coreos_qemu.img.bz2 | bzcat > /root/coreos/core01/core01.img':
+  exec { 'download_coreos':
+    command => 'wget -O - http://data01.demo.lan/coreos/coreos_qemu.img.bz2 | bzcat > /root/coreos/common/coreos.img',
+    creates => '/root/coreos/common/coreos.img',
     path    => '/usr/bin',
-    creates => '/root/coreos/core01/core01.img',
-  } ->
-
-  file { [ '/root/coreos/core02/core02.img',
-           '/root/coreos/core03/core03.img',
-           '/root/coreos/core04/core04.img' ]:
-    ensure   => file,
-    source   => '/root/coreos/core01/core01.img',
-    replace  => false,
-    checksum => 'mtime',
-    owner    => 'root',
-    group    => 'root',
-    mode     => '0644',
   }
 }
