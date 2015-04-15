@@ -46,7 +46,7 @@ function log {
 
 function is_ssh_alive {
   RETRIES=30; while [ $RETRIES -gt 0 ]; do
-    (echo > /dev/tcp/${NAME}/22) &> /dev/null && return 0
+    timeout 2 bash -c "echo > /dev/tcp/${NAME}/22 &> /dev/null" && return 0
     sleep 1; RETRIES=$((RETRIES - 1))
   done; return 1
 }
