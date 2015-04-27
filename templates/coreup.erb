@@ -239,11 +239,11 @@ action "$MSG" test $? -eq 0
 #------------------------------------------------------------------------------
 
 function generate_tap_interfaces {
-  for i in 0 1 2; do
-    ip l del ${NAME}_eth${i} &> /dev/null
-    ip tuntap a d ${NAME}_eth${i} m tap || return 1
-    brctl addif br${i} ${NAME}_eth${i} || return 1
-    ip l s dev ${NAME}_eth${i} up || return 1
+  for i in $(brctl show | awk '/^core/ {print $1}'); do
+    ip l del ${NAME}_eth${i#core} &> /dev/null
+    ip tuntap a d ${NAME}_eth${i#core} m tap || return 1
+    brctl addif ${i} ${NAME}_eth${i#core} || return 1
+    ip l s dev ${NAME}_eth${i#core} up || return 1
   done; return 0
 }
 
