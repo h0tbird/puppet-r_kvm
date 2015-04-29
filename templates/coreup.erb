@@ -148,6 +148,7 @@ write_files:
       alias dps='docker ps'
       alias dip="docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
       alias drm='docker rm \$(docker ps -qa)';
+      alias drmi='docker rmi \$(docker images -f '\''dangling=true'\'' -q)'
 
 coreos:
   units:
