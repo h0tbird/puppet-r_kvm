@@ -68,4 +68,6 @@ coreos:
   name: <%= @value %>
   addr: <%= @value %>:4001
   peer-addr: <%= @value %>:7001
+<% if @value != 'core01' -%>
   peers: core01:7001
+<% end -%>
