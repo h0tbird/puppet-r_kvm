@@ -40,18 +40,18 @@ set -o pipefail
 # Common functions:
 #------------------------------------------------------------------------------
 
-function log {
+function log() {
   echo "$(date +'%b %d %T') [${NAME}] $*" >> ${LOGFILE}
 }
 
-function is_ssh_alive {
+function is_ssh_alive() {
   local RETRIES=30; while [ ${RETRIES} -gt 0 ]; do
     timeout 2 bash -c "echo > /dev/tcp/${NAME}/22" &> /dev/null && return 0
     sleep 1; RETRIES=$((RETRIES - 1))
   done; return 1
 }
 
-function hostname_not_in_use {
+function hostname_not_in_use() {
   ! ping -c1 -W2 ${NAME}.${DOMAIN} &> /dev/null
 }
 
@@ -84,7 +84,7 @@ log 'OK! Limit not reached yet' || {
 # Download and uncompress the CoreOS image:
 #------------------------------------------------------------------------------
 
-function download_coreos {
+function download_coreos() {
   wget --quiet http://${DATA_SERVER}/coreos/coreos_qemu.img.bz2 \
   -O - | bzcat > ${IMGDIR}/${NAME}.img
   [[ $? -ne 0 || ! -s ${IMGDIR}/${NAME}.img ]] && return 1 || return 0
@@ -101,7 +101,7 @@ function download_coreos {
 # Resize the CoreOS image:
 #------------------------------------------------------------------------------
 
-function resize_image {
+function resize_image() {
   qemu-img resize ${IMGDIR}/${NAME}.img +20G &> /dev/null && \
   return 0 || return 1
 }
@@ -239,7 +239,7 @@ action "${MSG}" test $? -eq 0
 # Generate the host TAP interfaces:
 #------------------------------------------------------------------------------
 
-function generate_tap_interfaces {
+function generate_tap_interfaces() {
   for i in $(brctl show | awk '/^core/ {print $1}'); do
     ip l del ${NAME}_eth${i#core} &> /dev/null
     ip tuntap a d ${NAME}_eth${i#core} m tap || return 1
@@ -257,12 +257,12 @@ MSG='Generating TAP interfaces...'; log "${MSG}"
 # Start the virtual machine:
 #------------------------------------------------------------------------------
 
-function genmac {
+function genmac() {
   echo `hostname` ${NAME} $1 | md5sum | \
   hexdump -n3 -e'/3 "00:16:3e" 3/1 ":%02X"'
 }
 
-function create_vm {
+function create_vm() {
   qemu-system-x86_64 \
   -enable-kvm \
   -name ${NAME}.${DOMAIN} \
@@ -308,7 +308,7 @@ MSG='Starting the virtual machine...'; log "${MSG}"
 # One time reboot:
 #------------------------------------------------------------------------------
 
-function powerdown_vm {
+function powerdown_vm() {
   (echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
   socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null) || return 1
   local RETRIES=5; while [ ${RETRIES} -gt 0 ]; do
