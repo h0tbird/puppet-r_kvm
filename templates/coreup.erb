@@ -146,7 +146,7 @@ function main() {
     log 'Ops! This hostname is already in use'; exit 1
   }
 
-  # Already running MAXVMS?
+  # MAXVMS limit reached?
   MSG='Checking VM limit is not reached...'; log "${MSG}"
   (action "${MSG}" [ $(pgrep -c qemu-system) -lt ${MAXVMS} ]) && \
   log 'OK! Limit not reached yet' || {
