@@ -341,3 +341,5 @@ MSG='Testing SSH port...'; log "${MSG}"
 (action "${MSG}" is_ssh_alive) && log 'OK! SSH port is listening' || {
   log 'Ops! SSH port failed to connect'; exit 1
 }
+
+# vim: set syntax=sh expandtab tabstop=2:
