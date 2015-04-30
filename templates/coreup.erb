@@ -18,7 +18,6 @@ readonly IMGDIR="/root/coreos/${NAME}"
 readonly RUNDIR="${IMGDIR}/run"
 readonly CFGDIR="${IMGDIR}/conf"
 readonly LOGFILE='/var/log/coreup.log'
-readonly UDATA="${CFGDIR}/openstack/latest/user_data"
 
 # Host resources:
 readonly HOST_CORES=`grep -c processor /proc/cpuinfo`
@@ -34,7 +33,6 @@ set -o pipefail
 [ -d ${IMGDIR} ] || mkdir -p ${IMGDIR}
 [ -d ${RUNDIR} ] || mkdir -p ${RUNDIR}
 [ -d ${CFGDIR} ] || mkdir -p ${CFGDIR}
-[ -d $(dirname ${UDATA}) ] || mkdir -p $(dirname ${UDATA})
 
 #------------------------------------------------------------------------------
 # Functions:
