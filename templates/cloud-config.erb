@@ -1,3 +1,63 @@
 #cloud-config
 
 hostname: <%= @value %>
+
+write_files:
+
+ - path: /etc/systemd/system/docker.service.d/50-insecure-registry.conf
+   content: |
+    [Service]
+    Environment=DOCKER_OPTS='--insecure-registry=regi01.<%= @domain %>:5000'
+
+ - path: /home/core/.bashrc
+   permissions: 0644
+   owner: root
+   content: |
+    [[ $- != *i* ]] && return
+    alias ls='ls -hF --color=auto --group-directories-first'
+    alias l='ls -l'
+    alias ll='ls -la'
+    alias grep='grep --color=auto'
+    alias dim='docker images'
+    alias dps='docker ps'
+    alias dip="docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
+    alias drm='docker rm $(docker ps -qa)';
+    alias drmi='docker rmi $(docker images -f '\''dangling=true'\'' -q)'
+
+coreos:
+
+ units:
+
+  - name: etcd.service
+    command: start
+
+  - name: fleet.service
+    command: start
+
+<% interfaces.split(',').select { |v| v =~ /core\d+$/ }.each_with_index do |item, n| %>
+
+  - name: 00-br<%= n %>.netdev
+    runtime: false
+    content: |
+     [NetDev]
+     Name=br<%= n %>
+     Kind=bridge
+
+  - name: 01-eth<%= n %>.network
+    runtime: false
+    content: |
+     [Match]
+     Name=eth<%= n %>
+
+     [Network]
+     Bridge=br<%= n %>
+
+  - name: 02-br<%= n %>.network
+    runtime: false
+    content: |
+     [Match]
+     Name=br<%= n %>
+
+     [Network]
+     DHCP=v4
+<% end %>
