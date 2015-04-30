@@ -34,8 +34,7 @@ coreos:
   - name: fleet.service
     command: start
 
-<% @interfaces.split(',').select { |v| v =~ /core\d+$/ }.each_with_index do |item, n| -%>
-
+<% @interfaces.split(',').select { |v| v =~ /^core\d+$/ }.each_with_index do |item, n| -%>
   - name: 00-br<%= n %>.netdev
     runtime: false
     content: |
@@ -60,4 +59,5 @@ coreos:
 
      [Network]
      DHCP=v4
+
 <% end -%>
