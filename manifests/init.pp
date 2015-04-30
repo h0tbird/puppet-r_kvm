@@ -17,19 +17,38 @@ class r_kvm {
     }
   }
 
-  $i = ("${::hostname}".match(/kvm(\d+)/)[1] - 1) * 4
-  $a = sprintf("%02d", $i+1)
-  $b = sprintf("%02d", $i+4)
+  #----------------------------
+  # kvm01: ind=0, min=1, max=4
+  # kvm02: ind=1, min=5, max=8
+  #----------------------------
 
-  range("core${a}", "core${b}").each |$value| {
+  $ind = ("${::hostname}".match(/kvm(\d+)/)[1] - 1) * 4
+  $min = sprintf("%02d", $ind+1)
+  $max = sprintf("%02d", $ind+4)
+
+  #----------------------------------------------------
+  # Iterate through: core01, core02, core03 and core04
+  #----------------------------------------------------
+
+  range("core${min}", "core${max}").each |$value| {
 
     file {
 
-      "/root/coreos/${value}":
+      ["/root/coreos/${value}",
+       "/root/coreos/${value}/conf",
+       "/root/coreos/${value}/conf/openstack",
+       "/root/coreos/${value}/conf/openstack/latest"]:
         ensure => directory,
         owner  => 'root',
         group  => 'root',
         mode   => '0755';
+
+      "/root/coreos/${value}/conf/openstack/latest/user_data":
+        ensure  => file,
+        content => template("${module_name}/cloud-config.erb"),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644';
 
       "/root/coreos/${value}/${value}.img":
         ensure   => file,
@@ -42,6 +61,10 @@ class r_kvm {
         require  => Exec['download_coreos'];
     }
   }
+
+  #---------------------------------
+  # Download the CoreOS disk image:
+  #---------------------------------
 
   file { ['/root/coreos','/root/coreos/common']:
     ensure => directory,
