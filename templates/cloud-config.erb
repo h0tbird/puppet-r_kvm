@@ -61,3 +61,11 @@ coreos:
      DHCP=v4
 
 <% end -%>
+ fleet:
+  metadata: host=<%= @value %>
+
+ etcd:
+  name: <%= @value %>
+  addr: <%= @value %>:4001
+  peer-addr: <%= @value %>:7001
+  peers: core01:7001
