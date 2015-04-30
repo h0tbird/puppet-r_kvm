@@ -152,7 +152,7 @@ log 'OK! Limit not reached yet' || {
 }
 
 #------------------------------------------------------------------------------
-# Download and uncompress the CoreOS image:
+# Download, uncompress and resize the CoreOS image:
 #------------------------------------------------------------------------------
 
 [ -f ${IMGDIR}/${NAME}.img ] || {
@@ -162,11 +162,7 @@ log 'OK! Limit not reached yet' || {
   }
 }
 
-#------------------------------------------------------------------------------
-# Resize the CoreOS image:
-#------------------------------------------------------------------------------
-
-IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
+readonly IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
 
 [ "${IMGSIZE}" -lt "30000000000" ] && {
   MSG='Resizing CoreOS disk image...'; log "${MSG}"
@@ -176,7 +172,7 @@ IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size
 }
 
 #------------------------------------------------------------------------------
-# cloud-config:
+# Generate cloud-config:
 #------------------------------------------------------------------------------
 
 MSG='Generating cloud-config...'; log "${MSG}"
