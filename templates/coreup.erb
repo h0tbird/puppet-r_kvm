@@ -127,56 +127,52 @@ function powerdown_vm() {
 }
 
 #------------------------------------------------------------------------------
-# Checks:
+# Main function:
 #------------------------------------------------------------------------------
 
-# Is the VM already running?
-MSG='Checking VM is not running...'; log "${MSG}"
-(action "${MSG}" [ $(pgrep -cf "qemu.*${NAME}") -eq 0 ]) && \
-log 'OK! Not running yet' || {
-  log 'Ops! This VM is already running'; exit 0
-}
+function main() {
 
-# Is the hostname in use?
-MSG='Checking hostname is not in use...'; log "${MSG}"
-(action "${MSG}" hostname_not_in_use) && \
-log 'OK! Not in use yet' || {
-  log 'Ops! This hostname is already in use'; exit 1
-}
-
-# Already running MAXVMS?
-MSG='Checking VM limit is not reached...'; log "${MSG}"
-(action "${MSG}" [ $(pgrep -c qemu-system) -lt ${MAXVMS} ]) && \
-log 'OK! Limit not reached yet' || {
-  log "Ops! Limit of ${MAXVMS} reached"; exit 1
-}
-
-#------------------------------------------------------------------------------
-# Download, uncompress and resize the CoreOS image:
-#------------------------------------------------------------------------------
-
-[ -f ${IMGDIR}/${NAME}.img ] || {
-  MSG='Downloading CoreOS image file...'; log "${MSG}"
-  (action "${MSG}" download_coreos_image) && log 'OK! Download completed' || {
-    log 'Ops! Unable to download or uncompress the image'; exit 1
+  # Is the VM already running?
+  MSG='Checking VM is not running...'; log "${MSG}"
+  (action "${MSG}" [ $(pgrep -cf "qemu.*${NAME}") -eq 0 ]) && \
+  log 'OK! Not running yet' || {
+    log 'Ops! This VM is already running'; exit 0
   }
-}
 
-readonly IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
-
-[ "${IMGSIZE}" -lt "30000000000" ] && {
-  MSG='Resizing CoreOS disk image...'; log "${MSG}"
-  (action "${MSG}" resize_coreos_image) && log 'OK! Image has new size' || {
-    log 'Ops! Unable to resize the image'; exit 1
+  # Is the hostname in use?
+  MSG='Checking hostname is not in use...'; log "${MSG}"
+  (action "${MSG}" hostname_not_in_use) && \
+  log 'OK! Not in use yet' || {
+    log 'Ops! This hostname is already in use'; exit 1
   }
-}
 
-#------------------------------------------------------------------------------
-# Generate cloud-config:
-#------------------------------------------------------------------------------
+  # Already running MAXVMS?
+  MSG='Checking VM limit is not reached...'; log "${MSG}"
+  (action "${MSG}" [ $(pgrep -c qemu-system) -lt ${MAXVMS} ]) && \
+  log 'OK! Limit not reached yet' || {
+    log "Ops! Limit of ${MAXVMS} reached"; exit 1
+  }
 
-MSG='Generating cloud-config...'; log "${MSG}"
-KEYS=$(cat ~/.ssh/authorized_keys | sed 's/^env.*ssh/ - ssh/' | grep "^ -")
+  # Download and uncompress the CoreOS image:
+  [ -f ${IMGDIR}/${NAME}.img ] || {
+    MSG='Downloading CoreOS image file...'; log "${MSG}"
+    (action "${MSG}" download_coreos_image) && log 'OK! Download completed' || {
+      log 'Ops! Unable to download or uncompress the image'; exit 1
+    }
+  }
+
+  # Resize the CoreOS disk image:
+  readonly IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
+  [ "${IMGSIZE}" -lt "30000000000" ] && {
+    MSG='Resizing CoreOS disk image...'; log "${MSG}"
+    (action "${MSG}" resize_coreos_image) && log 'OK! Image has new size' || {
+      log 'Ops! Unable to resize the image'; exit 1
+    }
+  }
+
+  # Generate cloud-config:
+  MSG='Generating cloud-config...'; log "${MSG}"
+  readonly KEYS=$(cat ~/.ssh/authorized_keys | sed 's/^env.*ssh/ - ssh/' | grep "^ -")
 
 cat << EOF > ${UDATA}
 #cloud-config
@@ -286,56 +282,51 @@ coreos:
     peer-addr: ${NAME}:7001
 EOF
 
-echo ${NAME} | grep -q '01' || \
-echo '    peers: core01:7001' >> ${UDATA}
+  echo ${NAME} | grep -q '01' || \
+  echo '    peers: core01:7001' >> ${UDATA}
 
-action "${MSG}" test $? -eq 0
+  action "${MSG}" test $? -eq 0
 
-#------------------------------------------------------------------------------
-# Generate the host TAP interfaces:
-#------------------------------------------------------------------------------
+  # Generate the host TAP interfaces:
+  MSG='Generating TAP interfaces...'; log "${MSG}"
+  (action "${MSG}" generate_tap_interfaces) && log 'OK! Interfaces are UP' || {
+    log 'Ops! Unable to setup the interfaces'; exit 1
+  }
 
-MSG='Generating TAP interfaces...'; log "${MSG}"
-(action "${MSG}" generate_tap_interfaces) && log 'OK! Interfaces are UP' || {
-  log 'Ops! Unable to setup the interfaces'; exit 1
-}
+  # Start the virtual machine:
+  MSG='Starting the virtual machine...'; log "${MSG}"
+  (action "${MSG}" create_vm) && log 'OK! VM is running' || {
+    log 'Ops! Unable to start VM'; exit 1
+  }
 
-#------------------------------------------------------------------------------
-# Start the virtual machine:
-#------------------------------------------------------------------------------
+  # One time reboot:
+  [ ! -f ${CFGDIR}/bootstrapped ] && {
 
-MSG='Starting the virtual machine...'; log "${MSG}"
-(action "${MSG}" create_vm) && log 'OK! VM is running' || {
-  log 'Ops! Unable to start VM'; exit 1
-}
+    MSG='Testing SSH port...'; log "${MSG}"
+    (action "${MSG}" is_ssh_alive) && log 'OK! SSH port is listening' || {
+      log 'Ops! SSH port failed to connect'; exit 1
+    }
 
-#------------------------------------------------------------------------------
-# One time reboot:
-#------------------------------------------------------------------------------
+    MSG='Restarting after first boot...'; log "${MSG}"
+    (action "${MSG}" powerdown_vm) && log 'OK! System is down' || {
+      log 'Ops! Unable to powerdown'; exit 1
+    }
 
-[ ! -f ${CFGDIR}/bootstrapped ] && {
+    date > ${CFGDIR}/bootstrapped
+    exec $0 $@
+  }
 
+  # Test if port 22 is listening:
   MSG='Testing SSH port...'; log "${MSG}"
   (action "${MSG}" is_ssh_alive) && log 'OK! SSH port is listening' || {
     log 'Ops! SSH port failed to connect'; exit 1
   }
-
-  MSG='Restarting after first boot...'; log "${MSG}"
-  (action "${MSG}" powerdown_vm) && log 'OK! System is down' || {
-    log 'Ops! Unable to powerdown'; exit 1
-  }
-
-  date > ${CFGDIR}/bootstrapped
-  exec $0 $@
 }
 
 #------------------------------------------------------------------------------
-# Test if port 22 is listening:
+# Entry point:
 #------------------------------------------------------------------------------
 
-MSG='Testing SSH port...'; log "${MSG}"
-(action "${MSG}" is_ssh_alive) && log 'OK! SSH port is listening' || {
-  log 'Ops! SSH port failed to connect'; exit 1
-}
+main "$@"
 
 # vim: set syntax=sh expandtab tabstop=2:
