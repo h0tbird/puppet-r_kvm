@@ -299,13 +299,14 @@ EOF
     log 'Ops! Unable to start VM'; exit 1
   }
 
+  # Test if port 22 is listening:
+  MSG='Testing SSH port...'; log "${MSG}"
+  (action "${MSG}" is_ssh_alive) && log 'OK! SSH port is listening' || {
+    log 'Ops! SSH port failed to connect'; exit 1
+  }
+
   # One time reboot:
   [ ! -f ${CFGDIR}/bootstrapped ] && {
-
-    MSG='Testing SSH port...'; log "${MSG}"
-    (action "${MSG}" is_ssh_alive) && log 'OK! SSH port is listening' || {
-      log 'Ops! SSH port failed to connect'; exit 1
-    }
 
     MSG='Restarting after first boot...'; log "${MSG}"
     (action "${MSG}" powerdown_vm) && log 'OK! System is down' || {
@@ -314,12 +315,6 @@ EOF
 
     date > ${CFGDIR}/bootstrapped
     exec $0 $@
-  }
-
-  # Test if port 22 is listening:
-  MSG='Testing SSH port...'; log "${MSG}"
-  (action "${MSG}" is_ssh_alive) && log 'OK! SSH port is listening' || {
-    log 'Ops! SSH port failed to connect'; exit 1
   }
 }
 
