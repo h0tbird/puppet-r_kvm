@@ -4,7 +4,7 @@
 # Globals:
 #------------------------------------------------------------------------------
 
-# Instances:
+# Settings:
 readonly NAME=$1
 readonly DOMAIN='<%= @domain %>'
 readonly MAXVMS=4
@@ -20,8 +20,9 @@ readonly CFGDIR="${IMGDIR}/conf"
 readonly LOGFILE='/var/log/coreup.log'
 
 # Host resources:
-readonly HOST_CORES=`grep -c processor /proc/cpuinfo`
-readonly HOST_RAM=`free -m | awk '/Mem:/ {print $2}'`
+readonly HOST_NAME=$(hostname -s)
+readonly HOST_CORES=$(grep -c processor /proc/cpuinfo)
+readonly HOST_RAM=$(free -m | awk '/Mem:/ {print $2}')
 
 #------------------------------------------------------------------------------
 # Initializations:
@@ -49,6 +50,14 @@ function is_ssh_alive() {
   done; return 1
 }
 
+function validate_vm_name() {
+  local idx=$(((10#${HOST_NAME#kvm} - 1) * 4))
+  local min=$((idx + 1))
+  local max=$((idx + 4))
+  local id=$((10#${NAME#core}))
+  [[ ($id -lt $min) || ($id -gt $max) ]] && return 1
+}
+
 function hostname_not_in_use() {
   ! ping -c1 -W2 ${NAME}.${DOMAIN} &> /dev/null
 }
@@ -74,7 +83,7 @@ function generate_tap_interfaces() {
 }
 
 function genmac() {
-  echo `hostname` ${NAME} $1 | md5sum | \
+  echo $(hostname) ${NAME} $1 | md5sum | \
   hexdump -n3 -e'/3 "00:16:3e" 3/1 ":%02X"'
 }
 
@@ -139,6 +148,13 @@ function main() {
   (action "${MSG}" [ $(pgrep -cf "qemu.*${NAME}") -eq 0 ]) && \
   log 'OK! Not running yet' || {
     log 'Ops! This VM is already running'; exit 0
+  }
+
+  # Is the VM name within the expected range?
+  MSG='Checking VM name is within expected range...'; log "${MSG}"
+  (action "${MSG}" validate_vm_name) && \
+  log 'OK! VM name range is valid' || {
+    log 'Ops! This VM name is not within the expected range'; exit 1
   }
 
   # Is the hostname in use?
