@@ -78,6 +78,10 @@ function genmac() {
   hexdump -n3 -e'/3 "00:16:3e" 3/1 ":%02X"'
 }
 
+function validate_cloud_config() {
+  [ -f ${CFGDIR}/openstack/latest/user_data ]
+}
+
 function create_vm() {
   qemu-system-x86_64 \
   -enable-kvm \
@@ -163,15 +167,24 @@ function main() {
   readonly IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
   [ "${IMGSIZE}" -lt "30000000000" ] && {
     MSG='Resizing CoreOS disk image...'; log "${MSG}"
-    (action "${MSG}" resize_coreos_image) && log 'OK! Image has new size' || {
+    (action "${MSG}" resize_coreos_image) && \
+    log 'OK! Image has new size' || {
       log 'Ops! Unable to resize the image'; exit 1
     }
   }
 
   # Generate the host TAP interfaces:
   MSG='Generating TAP interfaces...'; log "${MSG}"
-  (action "${MSG}" generate_tap_interfaces) && log 'OK! Interfaces are UP' || {
+  (action "${MSG}" generate_tap_interfaces) && \
+  log 'OK! Interfaces are UP' || {
     log 'Ops! Unable to setup the interfaces'; exit 1
+  }
+
+  # Validate cloud-config:
+  MSG='Validating cloud-config...'; log "${MSG}"
+  (action "${MSG}" validate_cloud_config) && \
+  log 'OK! Cloud-config looks good' || {
+    log 'Ops! Cloud-config is not valid'; exit 1
   }
 
   # Start the virtual machine:
