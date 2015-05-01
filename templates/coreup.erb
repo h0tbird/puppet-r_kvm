@@ -6,12 +6,12 @@
 
 # Instances:
 readonly NAME=$1
-readonly DOMAIN='demo.lan'
+readonly DOMAIN='<%= @domain %>'
 readonly MAXVMS=4
 
 # Servers:
-readonly DATA_SERVER='data01.demo.lan'
-readonly CONTAINER_SERVER='regi01.demo.lan'
+readonly DATA_SERVER='data01.<%= @domain %>'
+readonly CONTAINER_SERVER='regi01.<%= @domain %>'
 
 # Filesystem locations:
 readonly IMGDIR="/root/coreos/${NAME}"
