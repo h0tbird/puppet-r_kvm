@@ -96,8 +96,8 @@ function dynamic_netdev() {
   local end=$(($(brctl show | awk '/^core/ {i++} END{print i}') - 1))
   for i in $(seq 0 $end); do
     local addr="0x$((i+3))"
-    echo "-netdev tap,ifname=${NAME}_eth${i},id=hostnet${i},vhost=on,script=no,downscript=no \\"
-    echo "-device virtio-net-pci,netdev=hostnet${i},id=net${i},romfile=,bus=pci.0,addr=${addr},mac=$(genmac eth${i}) \\"
+    echo -n "-netdev tap,ifname=${NAME}_eth${i},id=hostnet${i},vhost=on,script=no,downscript=no "
+    echo -n "-device virtio-net-pci,netdev=hostnet${i},id=net${i},romfile=,bus=pci.0,addr=${addr},mac=$(genmac eth${i}) "
   done
 }
 
@@ -115,8 +115,7 @@ function create_vm() {
   -device sga \
   -display none \
   -daemonize \
-  \
-  $(dynamic_netdev)
+  $(dynamic_netdev) \
   \
   -drive if=none,file=${IMGDIR}/${NAME}.img,id=drive-virtio-disk0 \
   -device virtio-blk-pci,scsi=off,drive=drive-virtio-disk0,id=virtio-disk0 \
