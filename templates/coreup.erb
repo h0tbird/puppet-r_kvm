@@ -18,6 +18,7 @@ readonly IMGDIR="/root/coreos/${NAME}"
 readonly RUNDIR="${IMGDIR}/run"
 readonly CFGDIR="${IMGDIR}/conf"
 readonly LOGFILE='/var/log/coreup.log'
+readonly SSHDIR='/root/.ssh'
 
 # Host resources:
 readonly HOST_NAME=$(hostname -s)
@@ -122,6 +123,9 @@ function create_vm() {
   \
   -fsdev local,id=conf,security_model=none,readonly,path=${CFGDIR} \
   -device virtio-9p-pci,fsdev=conf,mount_tag=config-2 \
+  \
+  -fsdev local,id=ssh,security_model=none,readonly,path=${SSHDIR} \
+  -device virtio-9p-pci,fsdev=ssh,mount_tag=ssh \
   \
   -chardev socket,id=monitor,path=${RUNDIR}/monitor.sock,server,nowait \
   -mon chardev=monitor,id=monitor,mode=control \
