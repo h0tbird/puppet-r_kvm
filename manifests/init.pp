@@ -17,6 +17,25 @@ class r_kvm {
     }
   }
 
+  #-------------------------------------------------
+  # Permissions and ownership for SSH pass-through:
+  #-------------------------------------------------
+
+  file {
+
+    '/root/.ssh':
+      ensure => directory,
+      owner  => 'root',
+      group  => '500',
+      mode   => '0750';
+
+    '/root/.ssh/authorized_keys':
+      ensure => file,
+      owner  => 'root',
+      group  => '500',
+      mode   => '0640';
+  }
+
   #----------------------------
   # kvm01: ind=0, min=1, max=4
   # kvm02: ind=1, min=5, max=8
