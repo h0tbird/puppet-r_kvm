@@ -52,6 +52,15 @@ coreos:
   - name: fleet.service
     command: start
 
+  - name: home-core-.ssh.mount
+    command: start
+    content: |
+     [Mount]
+     What=ssh
+     Where=/home/core/.ssh
+     Type=9p
+     Options=trans=virtio,version=9p2000.L,ro
+
 <% @interfaces.split(',').select { |v| v =~ /^core\d+$/ }.each_with_index do |item, n| -%>
   - name: 00-br<%= n %>.netdev
     runtime: false
