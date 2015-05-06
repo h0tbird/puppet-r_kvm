@@ -2,9 +2,6 @@
 
 hostname: <%= @value %>
 
-ssh_authorized_keys:
- - ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAtWGpShgH4SCTM3WwsSwMScIGz/Fzvx5xp73fnj7rKGZNdkFNzKObbTgrN77UkWGw9aVazqjTErmPxzcNfW+dXYdxO0s/lUYi1jK6o1JkMv5j07LiOTqsnqJBxJLfECmcjQw6u9ECFErC+Z9TeaMUWVBRKDNWamkT0CyIN7Bg0qQ3spyeX7qNLj5dsP5w+2LE9qiUY0ouDK8CSH1Fr4t3emJqjx8lVMCDXDqBigq0GalglK/o9yW+bp9JrT1EDSH2RwBoiMrTnphHftRHwWUnr2bWLlifd4HiFrASya922asEjdq4MOwu3KGuKHPflqQ7JeGka3s3ymZA7GWUu1KvZw== marc.villacorta/root
-
 write_files:
 
  - path: /etc/systemd/system/docker.service.d/50-insecure-registry.conf
