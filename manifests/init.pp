@@ -93,7 +93,7 @@ class r_kvm {
   } ->
 
   exec { 'download_coreos':
-    command => 'wget -O - http://data01.demo.lan/coreos/coreos_qemu.img.bz2 | bzcat > /root/coreos/common/coreos.img',
+    command => 'wget -O - http://data01/coreos/coreos_qemu.img.bz2 | bzcat > /root/coreos/common/coreos.img',
     creates => '/root/coreos/common/coreos.img',
     path    => '/usr/bin',
   }
