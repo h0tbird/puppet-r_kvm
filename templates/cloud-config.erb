@@ -7,7 +7,7 @@ write_files:
  - path: /etc/systemd/system/docker.service.d/50-insecure-registry.conf
    content: |
     [Service]
-    Environment=DOCKER_OPTS='--insecure-registry=regi01.<%= @domain %>:5000'
+    Environment=DOCKER_OPTS='--insecure-registry=regi01:5000'
 
  - path: /home/core/.bashrc
    permissions: 0644
