@@ -8,6 +8,7 @@
 readonly NAME=$1
 readonly DOMAIN='<%= @domain %>'
 readonly MAXVMS=4
+readonly VM_OUI='52:54:00'
 
 # Servers:
 readonly DATA_SERVER='data01.<%= @domain %>'
@@ -86,7 +87,7 @@ function generate_tap_interfaces() {
 
 function genmac() {
   echo $(hostname) ${NAME} $1 | md5sum | \
-  hexdump -n3 -e'/3 "00:16:3e" 3/1 ":%02X"'
+  hexdump -n3 -e "/3 \"${VM_OUI}\" 3/1 \":%02X\""
 }
 
 function validate_cloud_config() {
