@@ -43,7 +43,7 @@ coreos:
 
  units:
 
-  - name: etcd.service
+  - name: etcd2.service
     command: start
 
   - name: fleet.service
@@ -88,10 +88,9 @@ coreos:
  fleet:
   metadata: host=<%= @value %>
 
- etcd:
+ etcd2:
   name: <%= @value %>
-  addr: <%= @value %>:4001
-  peer-addr: <%= @value %>:7001
-<% if @value != 'core01' -%>
-  peers: core01:7001
-<% end -%>
+  listen-peer-urls: http://<%= @value %>:2380,http://<%= @value %>:7001
+  initial-advertise-peer-urls: http://<%= @value %>:2380
+  initial-cluster: core01=http://core01:2380,core02=http://core02:2380,core03=http://core03:2380
+  initial-cluster-state: new
