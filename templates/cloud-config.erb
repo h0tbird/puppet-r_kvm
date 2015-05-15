@@ -90,7 +90,9 @@ coreos:
 
  etcd2:
   name: <%= @value %>
-  listen-peer-urls: http://<%= @value %>:2380,http://<%= @value %>:7001
-  initial-advertise-peer-urls: http://<%= @value %>:2380
   initial-cluster: core01=http://core01:2380,core02=http://core02:2380,core03=http://core03:2380
+<% if @value < 'core04' -%>
+  listen-peer-urls: http://<%= @value %>:2380
+  initial-advertise-peer-urls: http://<%= @value %>:2380
   initial-cluster-state: new
+<% end %>
