@@ -1,6 +1,8 @@
 class r_kvm {
 
-  contain ::r_base
+  #------------------------------
+  # Packages and helper scripts:
+  #------------------------------
 
   package { ['wget','bzip2','socat','qemu-system-x86','seabios','qemu-img','jq']:
     ensure => present,
