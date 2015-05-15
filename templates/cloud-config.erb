@@ -92,7 +92,7 @@ coreos:
   name: <%= @value %>
   initial-cluster: core01=http://core01:2380,core01=http://core01:7001,core02=http://core02:2380,core02=http://core02:7001,core03=http://core03:2380,core03=http://core03:7001
 <% if @value < 'core04' -%>
-  listen-peer-urls: http://127.0.0.1:2380,http://127.0.0.1:7001,http://<%= @value %>:2380,http://<%= @value %>:7001
+  listen-peer-urls: http://<%= @value %>:2380,http://<%= @value %>:7001
   listen-client-urls: http://127.0.0.1:2379,http://127.0.0.1:4001,http://<%= @value %>:2379,http://<%= @value %>:4001
   initial-advertise-peer-urls: http://<%= @value %>:2380,http://<%= @value %>:7001
   advertise-client-urls: http://<%= @value %>:2379,http://<%= @value %>:4001
