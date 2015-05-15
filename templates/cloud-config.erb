@@ -90,12 +90,13 @@ coreos:
 
  etcd2:
   name: <%= @value %>
-  initial-cluster: core01=http://core01:2380,core02=http://core02:2380,core03=http://core03:2380
 <% if @value < 'core04' -%>
   listen-peer-urls: http://<%= @value %>:2380
+  initial-cluster: core01=http://core01:2380,core02=http://core02:2380,core03=http://core03:2380
   initial-advertise-peer-urls: http://<%= @value %>:2380
   initial-cluster-state: new
 <% else -%>
-  proxy: on
+  initial-cluster: core01=http://core01:2379,core02=http://core02:2379,core03=http://core03:2379
   listen-client-urls: http://127.0.0.1:2379
+  proxy: on
 <% end -%>
