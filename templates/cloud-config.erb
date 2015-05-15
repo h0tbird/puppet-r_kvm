@@ -95,4 +95,7 @@ coreos:
   listen-peer-urls: http://<%= @value %>:2380
   initial-advertise-peer-urls: http://<%= @value %>:2380
   initial-cluster-state: new
-<% end %>
+<% else %>
+  proxy: on
+  listen-client-urls: 127.0.0.1:8080
+<% end -%>
