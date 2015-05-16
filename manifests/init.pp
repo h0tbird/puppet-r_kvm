@@ -8,11 +8,11 @@ class r_kvm {
     ensure => present,
   }
 
-  ['coreup', 'pupply', 'coretach', 'coredown'].each |$value| {
+  ['coreup', 'pupply', 'coretach', 'coredown'].each |$file| {
 
-    file { "/usr/local/sbin/${value}":
+    file { "/usr/local/sbin/${file}":
       ensure  => present,
-      content => template("${module_name}/${value}.erb"),
+      content => template("${module_name}/${file}.erb"),
       owner   => 'root',
       group   => 'root',
       mode    => '0755',
@@ -51,27 +51,27 @@ class r_kvm {
   # Iterate through: core01, core02, core03 and core04
   #----------------------------------------------------
 
-  range("core${min}", "core${max}").each |$value| {
+  range("core${min}", "core${max}").each |$id| {
 
     file {
 
-      ["/root/coreos/${value}",
-       "/root/coreos/${value}/conf",
-       "/root/coreos/${value}/conf/openstack",
-       "/root/coreos/${value}/conf/openstack/latest"]:
+      ["/root/coreos/${id}",
+       "/root/coreos/${id}/conf",
+       "/root/coreos/${id}/conf/openstack",
+       "/root/coreos/${id}/conf/openstack/latest"]:
         ensure => directory,
         owner  => 'root',
         group  => 'root',
         mode   => '0755';
 
-      "/root/coreos/${value}/conf/openstack/latest/user_data":
+      "/root/coreos/${id}/conf/openstack/latest/user_data":
         ensure  => file,
         content => template("${module_name}/cloud-config.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
 
-      "/root/coreos/${value}/${value}.img":
+      "/root/coreos/${id}/${id}.img":
         ensure   => file,
         source   => '/root/coreos/common/coreos.img',
         replace  => false,
