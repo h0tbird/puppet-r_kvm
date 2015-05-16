@@ -36,7 +36,8 @@ class r_kvm {
       owner  => 'root',
       group  => '500',
       mode   => '0640';
-  }
+
+  } <- Ssh::Key <| |>
 
   #----------------------------
   # kvm01: ind=0, min=1, max=4
