@@ -56,6 +56,9 @@ class r_kvm {
 
   range("core${min}", "core${max}").each |$id| {
 
+    if "${id}" in $masters { $role = 'master' }
+    else { $role = 'slave' }
+
     file {
 
       ["/root/coreos/${id}",
