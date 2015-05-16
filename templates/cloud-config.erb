@@ -87,6 +87,7 @@ coreos:
 <% end -%>
  fleet:
   metadata: host=<%= @id %>
+  metadata: role=master
 
  etcd2:
   name: <%= @id %>

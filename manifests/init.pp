@@ -52,6 +52,8 @@ class r_kvm {
   # Iterate through: core01, core02, core03 and core04
   #----------------------------------------------------
 
+  $masters = hiera('MasterHosts')
+
   range("core${min}", "core${max}").each |$id| {
 
     file {
