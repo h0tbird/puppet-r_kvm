@@ -90,8 +90,8 @@ coreos:
 
  etcd2:
   name: <%= @id %>
-  initial-cluster: core01=http://core01:2380,core01=http://core01:7001,core02=http://core02:2380,core02=http://core02:7001,core03=http://core03:2380,core03=http://core03:7001
-<% if @id < 'core04' -%>
+  initial-cluster: core-1=http://core-1:2380,core-1=http://core-1:7001,core-2=http://core-2:2380,core-2=http://core-2:7001,core-3=http://core-3:2380,core-3=http://core-3:7001
+<% if @id < 'core-4' -%>
   listen-peer-urls: http://<%= @id %>:2380,http://<%= @id %>:7001
   listen-client-urls: http://127.0.0.1:2379,http://127.0.0.1:4001,http://<%= @id %>:2379,http://<%= @id %>:4001
   initial-advertise-peer-urls: http://<%= @id %>:2380,http://<%= @id %>:7001
