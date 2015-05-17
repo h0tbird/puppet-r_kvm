@@ -45,8 +45,8 @@ class r_kvm {
   #----------------------------
 
   $ind = ("${::hostname}".match(/kvm-(\d+)/)[1] - 1) * 4
-  $min = sprintf("%02d", $ind+1)
-  $max = sprintf("%02d", $ind+4)
+  $min = $ind + 1
+  $max = $ind + 4
 
   #----------------------------------------------------
   # Iterate through: core01, core02, core03 and core04
