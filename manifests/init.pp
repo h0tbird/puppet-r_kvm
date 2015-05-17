@@ -44,7 +44,7 @@ class r_kvm {
   # kvm02: ind=1, min=5, max=8
   #----------------------------
 
-  $ind = ("${::hostname}".match(/kvm(\d+)/)[1] - 1) * 4
+  $ind = ("${::hostname}".match(/kvm-(\d+)/)[1] - 1) * 4
   $min = sprintf("%02d", $ind+1)
   $max = sprintf("%02d", $ind+4)
 
@@ -54,7 +54,7 @@ class r_kvm {
 
   $masters = hiera('MasterHosts')
 
-  range("core${min}", "core${max}").each |$id| {
+  range("core-${min}", "core-${max}").each |$id| {
 
     if "${id}" in $masters { $role = 'master' }
     else { $role = 'slave' }
