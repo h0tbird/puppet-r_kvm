@@ -53,10 +53,10 @@ function is_ssh_alive() {
 }
 
 function validate_vm_name() {
-  local idx=$(((10#${HOST_NAME#kvm} - 1) * 4))
+  local idx=$(((${HOST_NAME#kvm-} - 1) * 4))
   local min=$((idx + 1))
   local max=$((idx + 4))
-  local id=$((10#${NAME#core}))
+  local id=$((${NAME#core-}))
   [[ ($id -lt $min) || ($id -gt $max) ]] && return 1
   return 0
 }
