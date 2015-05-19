@@ -59,7 +59,7 @@ class r_kvm {
     # Setup 'role' and 'masterid' metaparams:
     if "${id}" in $masters {
       $role = 'master'
-      $masterid = inline_template("<%= @masters.index('@id') %>")
+      $masterid = inline_template('<%= @masters.index(@id) + 1%>')
     } else { $role = 'slave' }
 
     file {
