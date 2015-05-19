@@ -40,8 +40,8 @@ class r_kvm {
   } <- Ssh::Key <| |>
 
   #----------------------------
-  # kvm01: ind=0, min=1, max=4
-  # kvm02: ind=1, min=5, max=8
+  # kvm-1: ind=0, min=1, max=4
+  # kvm-2: ind=1, min=5, max=8
   #----------------------------
 
   $ind = ("${::hostname}".match(/kvm-(\d+)/)[1] - 1) * 4
@@ -49,15 +49,18 @@ class r_kvm {
   $max = $ind + 4
 
   #----------------------------------------------------
-  # Iterate through: core01, core02, core03 and core04
+  # Iterate through: core-1, core-2, core-3 and core-4
   #----------------------------------------------------
 
   $masters = hiera('MasterHosts')
 
   range("core-${min}", "core-${max}").each |$id| {
 
-    if "${id}" in $masters { $role = 'master' }
-    else { $role = 'slave' }
+    # Setup 'role' and 'masterid' metaparams:
+    if "${id}" in $masters {
+      $role = 'master'
+      $masterid = inline_template("<%= @masters.index('@id') %>")
+    } else { $role = 'slave' }
 
     file {
 
