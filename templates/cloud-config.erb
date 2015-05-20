@@ -98,6 +98,6 @@ coreos:
   advertise-client-urls: http://<%= @id %>:2379,http://<%= @id %>:4001
   initial-cluster-state: new
 <% else -%>
-  listen-client-urls: http://127.0.0.1:2379
+  listen-client-urls: http://127.0.0.1:2379,http://127.0.0.1:4001
   proxy: on
 <% end -%>
