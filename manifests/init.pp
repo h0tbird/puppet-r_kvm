@@ -90,6 +90,25 @@ class r_kvm {
         mode     => '0644',
         require  => Exec['download_coreos'];
     }
+
+    if $role == 'master' {
+
+      file {
+
+        "/root/coreos/${id}/conf/prometheus":
+          ensure => directory,
+          owner  => 'root',
+          group  => 'root',
+          mode   => '0755';
+
+        "/root/coreos/${id}/conf/prometheus/prometheus.conf":
+          ensure  => file,
+          content => template("${module_name}/prometheus.conf.erb"),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0644';
+      }
+    }
   }
 
   #---------------------------------
