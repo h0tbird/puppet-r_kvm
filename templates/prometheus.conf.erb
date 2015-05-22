@@ -51,9 +51,9 @@ job: {
 
     # These endpoints are scraped via HTTP.
 
-    target: "http://core-1:9191/metrics"
-    target: "http://core-2:9191/metrics"
-    target: "http://core-3:9191/metrics"
+    target: "http://core-1<% if @domain -%>.<%= @domain %><% end -%>:9191/metrics"
+    target: "http://core-2<% if @domain -%>.<%= @domain %><% end -%>:9191/metrics"
+    target: "http://core-3<% if @domain -%>.<%= @domain %><% end -%>:9191/metrics"
   }
 }
 
@@ -68,9 +68,9 @@ job: {
 
   target_group: {
 
-    target: "http://core-1.cell-0.ofi.xnood.com:4194/metrics"
-    target: "http://core-2.cell-0.ofi.xnood.com:4194/metrics"
-    target: "http://core-3.cell-0.ofi.xnood.com:4194/metrics"
+    target: "http://core-1<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
+    target: "http://core-2<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
+    target: "http://core-3<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
 
     labels: {
       label: {
@@ -82,11 +82,11 @@ job: {
 
   target_group: {
 
-    target: "http://core-4.cell-0.ofi.xnood.com:4194/metrics"
-    target: "http://core-5.cell-0.ofi.xnood.com:4194/metrics"
-    target: "http://core-6.cell-0.ofi.xnood.com:4194/metrics"
-    target: "http://core-7.cell-0.ofi.xnood.com:4194/metrics"
-    target: "http://core-8.cell-0.ofi.xnood.com:4194/metrics"
+    target: "http://core-4<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
+    target: "http://core-5<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
+    target: "http://core-6<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
+    target: "http://core-7<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
+    target: "http://core-8<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
 
     labels: {
       label: {
