@@ -107,6 +107,13 @@ class r_kvm {
           owner   => 'root',
           group   => 'root',
           mode    => '0644';
+
+        "/root/coreos/${id}/conf/prometheus/prometheus.rules":
+          ensure  => file,
+          content => template("${module_name}/prometheus.rules.erb"),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0644';
       }
     }
   }
