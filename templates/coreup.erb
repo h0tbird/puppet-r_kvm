@@ -151,28 +151,28 @@ function powerdown_vm() {
 function main() {
 
   # Is the VM already running?
-  MSG='Checking VM is not running...'; log "${MSG}"
+  MSG="[${NAME}] Checking VM is not running..."; log "${MSG}"
   (action "${MSG}" [ $(pgrep -cf "qemu.*${NAME}") -eq 0 ]) && \
   log 'OK! Not running yet' || {
     log 'Ops! This VM is already running'; exit 0
   }
 
   # Is the VM name within the expected range?
-  MSG='Checking VM name is within expected range...'; log "${MSG}"
+  MSG="[${NAME}] Checking VM name is within expected range..."; log "${MSG}"
   (action "${MSG}" validate_vm_name) && \
   log 'OK! VM name range is valid' || {
     log 'Ops! This VM name is not within the expected range'; exit 1
   }
 
   # Is the hostname in use?
-  MSG='Checking hostname is not in use...'; log "${MSG}"
+  MSG="[${NAME}] Checking hostname is not in use..."; log "${MSG}"
   (action "${MSG}" hostname_not_in_use) && \
   log 'OK! Not in use yet' || {
     log 'Ops! This hostname is already in use'; exit 1
   }
 
   # MAXVMS limit reached?
-  MSG='Checking VM limit is not reached...'; log "${MSG}"
+  MSG="[${NAME}] Checking VM limit is not reached..."; log "${MSG}"
   (action "${MSG}" [ $(pgrep -c qemu-system) -lt ${MAXVMS} ]) && \
   log 'OK! Limit not reached yet' || {
     log "Ops! Limit of ${MAXVMS} reached"; exit 1
@@ -180,7 +180,7 @@ function main() {
 
   # Download and uncompress the CoreOS image:
   [ -f ${IMGDIR}/${NAME}.img ] || {
-    MSG='Downloading CoreOS image file...'; log "${MSG}"
+    MSG="[${NAME}] Downloading CoreOS image file..."; log "${MSG}"
     (action "${MSG}" download_coreos_image) && log 'OK! Download completed' || {
       log 'Ops! Unable to download or uncompress the image'; exit 1
     }
@@ -189,7 +189,7 @@ function main() {
   # Resize the CoreOS disk image:
   readonly IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
   [ "${IMGSIZE}" -lt "30000000000" ] && {
-    MSG='Resizing CoreOS disk image...'; log "${MSG}"
+    MSG="[${NAME}] Resizing CoreOS disk image..."; log "${MSG}"
     (action "${MSG}" resize_coreos_image) && \
     log 'OK! Image has new size' || {
       log 'Ops! Unable to resize the image'; exit 1
@@ -197,27 +197,27 @@ function main() {
   }
 
   # Generate the host TAP interfaces:
-  MSG='Generating TAP interfaces...'; log "${MSG}"
+  MSG="[${NAME}] Generating TAP interfaces..."; log "${MSG}"
   (action "${MSG}" generate_tap_interfaces) && \
   log 'OK! Interfaces are UP' || {
     log 'Ops! Unable to setup the interfaces'; exit 1
   }
 
   # Validate cloud-config:
-  MSG='Validating cloud-config...'; log "${MSG}"
+  MSG="[${NAME}] Validating cloud-config..."; log "${MSG}"
   (action "${MSG}" validate_cloud_config) && \
   log 'OK! Cloud-config looks good' || {
     log 'Ops! Cloud-config is not valid'; exit 1
   }
 
   # Start the virtual machine:
-  MSG='Starting the virtual machine...'; log "${MSG}"
+  MSG="[${NAME}] Starting the virtual machine..."; log "${MSG}"
   (action "${MSG}" create_vm) && log 'OK! VM is running' || {
     log 'Ops! Unable to start VM'; exit 1
   }
 
   # Test if port 22 is listening:
-  MSG='Testing SSH port...'; log "${MSG}"
+  MSG="[${NAME}] Testing SSH port..."; log "${MSG}"
   (action "${MSG}" is_ssh_alive) && log 'OK! SSH port is listening' || {
     log 'Ops! SSH port failed to connect'; exit 1
   }
@@ -225,7 +225,7 @@ function main() {
   # One time reboot:
   [ ! -f ${CFGDIR}/bootstrapped ] && {
 
-    MSG='Restarting after first boot...'; log "${MSG}"
+    MSG="[${NAME}] Restarting after first boot..."; log "${MSG}"
     (action "${MSG}" powerdown_vm) && log 'OK! System is down' || {
       log 'Ops! Unable to powerdown'; exit 1
     }
