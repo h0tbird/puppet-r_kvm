@@ -7,23 +7,12 @@ class r_kvm {
   class  { "::${module_name}::coreos":  } ->
   anchor { "${module_name}_end":        }
 
-  #------------------------------
-  # Packages and helper scripts:
-  #------------------------------
+  #-----------
+  # Packages:
+  #-----------
 
   package { ['wget','bzip2','socat','qemu-system-x86','seabios','qemu-img','jq']:
     ensure => present,
-  }
-
-  ['coreup', 'pupply', 'coretach', 'coredown'].each |$file| {
-
-    file { "/usr/local/sbin/${file}":
-      ensure  => present,
-      content => template("${module_name}/${file}.erb"),
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0755',
-    }
   }
 
   #-------------------------------------------------
