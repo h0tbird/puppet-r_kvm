@@ -7,23 +7,26 @@ class r_kvm::docker {
   file {
 
     '/etc/sysconfig/docker':
-      ensure => present,
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0644';
+      ensure  => present,
+      content => template("::${module_name}/docker.erb"),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644';
 
     '/etc/sysconfig/docker-storage':
-      ensure => present,
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0644';
+      ensure  => present,
+      content => template("::${module_name}/docker-storage.erb"),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644';
 
     '/etc/sysconfig/docker-network':
-      ensure => present,
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0644';
-  } ->
+      ensure  => present,
+      content => template("::${module_name}/docker-network.erb"),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644';
+  } ~>
 
   service { 'docker':
     ensure => 'running',
