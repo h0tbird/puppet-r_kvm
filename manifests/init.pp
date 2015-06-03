@@ -15,26 +15,6 @@ class r_kvm {
     ensure => present,
   }
 
-  #-------------------------------------------------
-  # Permissions and ownership for SSH pass-through:
-  #-------------------------------------------------
-
-  file {
-
-    '/root/.ssh':
-      ensure => directory,
-      owner  => 'root',
-      group  => '500',
-      mode   => '0750';
-
-    '/root/.ssh/authorized_keys':
-      ensure => file,
-      owner  => 'root',
-      group  => '500',
-      mode   => '0640';
-
-  } <- Ssh::Key <| |>
-
   #----------------------------
   # kvm-1: ind=0, min=1, max=4
   # kvm-2: ind=1, min=5, max=8
