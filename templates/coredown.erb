@@ -28,3 +28,4 @@ function powerdown_vm {
 }
 
 action "System ${1} powerdown..." powerdown_vm
+ip l del ${NAME}_eth0
