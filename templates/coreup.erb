@@ -7,8 +7,8 @@
 # Settings:
 readonly NAME=$1
 readonly DOMAIN='<%= @domain %>'
-readonly MAXVMS=4
 readonly VM_OUI='52:54:00'
+readonly MAXVMS=4
 
 # Servers:
 readonly DATA_SERVER='data01.<%= @domain %>'
@@ -31,11 +31,17 @@ readonly HOST_RAM=$(free -m | awk '/Mem:/ {print $2}')
 #------------------------------------------------------------------------------
 
 set -o pipefail
-. /etc/init.d/functions
+source /etc/init.d/functions
 
 [ -d ${IMGDIR} ] || mkdir -p ${IMGDIR}
 [ -d ${RUNDIR} ] || mkdir -p ${RUNDIR}
 [ -d ${CFGDIR} ] || mkdir -p ${CFGDIR}
+
+#------------------------------------------------------------------------------
+# Source custom config if any:
+#------------------------------------------------------------------------------
+
+[ -f ${CFGDIR} ] && source ${CFGDIR}/coreos.conf
 
 #------------------------------------------------------------------------------
 # Functions:
@@ -86,8 +92,14 @@ function generate_tap_interfaces() {
 }
 
 function genmac() {
-  echo $(hostname) ${NAME} $1 | md5sum | \
-  hexdump -n3 -e "/3 \"${VM_OUI}\" 3/1 \":%02X\""
+
+  # If defined in ${CFGDIR}/coreos.conf:
+  [ "${MAC["$1"]}" ] && echo -n ${MAC["$1"]} && return
+
+  # If not defined generate one:
+  HASH=$(echo $(hostname) ${NAME} $1 | md5sum)
+  TAIL=$(echo ${HASH:0:6} | sed 's/\(..\)/\1:/g;s/:$//')
+  echo -n "${VM_OUI}:${TAIL}"
 }
 
 function validate_cloud_config() {
