@@ -30,7 +30,7 @@ class r_kvm::booddies {
   # Start the services:
   #---------------------
 
-  if ${::hostname} == 'kvm-1' {
+  if "${::hostname}" == 'kvm-1' {
 
     ['boot','cgit','data','gito','regi'].each |$service| {
 
