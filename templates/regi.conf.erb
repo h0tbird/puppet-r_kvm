@@ -2,8 +2,8 @@
 # This file is meant to be sourced by bash scripts:
 #------------------------------------------------------------------------------
 
-readonly ID='regi01'
-readonly IMAGE='h0tbird/regi:latest'
-readonly HOSTNAME='regi01.cell-0.ofi.xnood.com'
-readonly DATA_DIR='/data/regi'
-readonly HOST_BRIDGE='br0'
+readonly ID='<%= @config["cell-#{@cell}"]['regi']['ID'] %>'
+readonly IMAGE='<%= @config["cell-#{@cell}"]['regi']['IMAGE'] %>'
+readonly HOSTNAME='<%= @config["cell-#{@cell}"]['regi']['HOSTNAME'] %>'
+readonly DATA_DIR='<%= @config["cell-#{@cell}"]['regi']['DATA_DIR'] %>'
+readonly HOST_BRIDGE='<%= @config["cell-#{@cell}"]['regi']['HOST_BRIDGE'] %>'

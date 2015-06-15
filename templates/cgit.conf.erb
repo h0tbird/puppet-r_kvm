@@ -2,6 +2,6 @@
 # This file is meant to be sourced by bash scripts:
 #------------------------------------------------------------------------------
 
-readonly ID='cgit01'
-readonly IMAGE='h0tbird/cgit:latest'
-readonly HOSTNAME='cgit01.cell-0.ofi.xnood.com'
+readonly ID='<%= @config["cell-#{@cell}"]['cgit']['ID'] %>'
+readonly IMAGE='<%= @config["cell-#{@cell}"]['cgit']['IMAGE'] %>'
+readonly HOSTNAME='<%= @config["cell-#{@cell}"]['cgit']['HOSTNAME'] %>'
