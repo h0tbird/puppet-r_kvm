@@ -25,4 +25,19 @@ class r_kvm::booddies {
       require => Package['booddies'];
     }
   }
+
+  #---------------------
+  # Start the services:
+  #---------------------
+
+  if ${::hostname} == 'kvm-1' {
+
+    ['boot','cgit','data','gito','regi'].each |$service| {
+
+      service { "${service}":
+        ensure => running,
+        enable => true,
+      }
+    }
+  }
 }
