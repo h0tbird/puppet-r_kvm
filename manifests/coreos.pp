@@ -13,7 +13,7 @@ class r_kvm::coreos {
   # Iterate through: core-1, core-2, core-3 and core-4
   #----------------------------------------------------
 
-  $masters = hiera('MasterHosts')
+  $masters = hiera("MasterHosts['cell-${::cell}']")
 
   range("core-${min}", "core-${max}").each |$id| {
 
