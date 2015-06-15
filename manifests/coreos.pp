@@ -13,14 +13,14 @@ class r_kvm::coreos {
   # Iterate through: core-1, core-2, core-3 and core-4
   #----------------------------------------------------
 
-  $masters = hiera("MasterHosts['cell-${::cell}']")
+  $masters = hiera('MasterHosts')
 
   range("core-${min}", "core-${max}").each |$id| {
 
     # Setup 'role' and 'masterid' metaparams:
-    if "${id}" in $masters {
+    if "${id}" in $masters["cell-${::cell}"] {
       $role = 'master'
-      $masterid = inline_template('<%= @masters.index(@id) + 1%>')
+      $masterid = inline_template("<%= @masters[\"cell-#{@cell}\"].index(@id) + 1%>")
     } else { $role = 'slave' }
 
     file {
