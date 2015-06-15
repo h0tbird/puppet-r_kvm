@@ -12,6 +12,8 @@ class r_kvm::booddies {
   # Configure the services:
   #-------------------------
 
+  $config = hiera('Booddies')
+
   ['boot','cgit','data','gito','regi'].each |$file| {
 
     file { "/etc/booddies/${file}.conf":

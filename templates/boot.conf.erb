@@ -2,7 +2,7 @@
 # This file is meant to be sourced by bash scripts:
 #------------------------------------------------------------------------------
 
-readonly ID='boot01'
+readonly ID=<%= @config["cell-#{@cell}"]['boot']['ID'] %>
 readonly IMAGE='h0tbird/boot:latest'
 readonly HOSTNAME='boot01.cell-0.ofi.xnood.com'
 readonly DATA_DIR='/data/boot'
