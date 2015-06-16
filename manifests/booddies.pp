@@ -16,14 +16,14 @@ class r_kvm::booddies {
 
   ['boot','cgit','data','gito','regi'].each |$file| {
 
-    file { "/etc/booddies/${file}.conf":
+    file { $file:
+      path    => "/etc/booddies/${file}.conf",
       ensure  => file,
       content => template("${module_name}/${file}.conf.erb"),
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
       require => Package['booddies'],
-      before  => Service['boot','cgit','data','gito','regi'],
     }
   }
 
@@ -35,10 +35,11 @@ class r_kvm::booddies {
 
     ['boot','cgit','data','gito','regi'].each |$service| {
 
-      service { "${service}":
+      service { $service:
         ensure    => running,
         enable    => true,
-        subscribe => File["/etc/booddies/${service}.conf"],
+        require   => File['boot','cgit','data','gito','regi'],
+        subscribe => File["${service}"],
       }
     }
   }
