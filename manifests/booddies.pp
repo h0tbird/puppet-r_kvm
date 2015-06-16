@@ -35,8 +35,9 @@ class r_kvm::booddies {
     ['boot','cgit','data','gito','regi'].each |$service| {
 
       service { "${service}":
-        ensure => running,
-        enable => true,
+        ensure    => running,
+        enable    => true,
+        subscribe => File["/etc/booddies/${service}.conf"],
       }
     }
   }
