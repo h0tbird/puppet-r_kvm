@@ -22,7 +22,8 @@ class r_kvm::booddies {
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
-      require => Package['booddies'];
+      require => Package['booddies'],
+      before  => Service['boot','cgit','data','gito','regi'],
     }
   }
 
