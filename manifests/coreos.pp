@@ -15,33 +15,33 @@ class r_kvm::coreos {
 
   $masters = hiera('MasterHosts')
 
-  range("core-${min}", "core-${max}").each |$id| {
+  range("${min}", "${max}").each |$id| {
 
     # Setup 'role' and 'masterid' metaparams:
-    if "${id}" in $masters["cell-${::cell}"] {
+    if "core-${id}" in $masters["cell-${::cell}"] {
       $role = 'master'
-      $masterid = inline_template("<%= @masters[\"cell-#{@cell}\"].index(@id) + 1%>")
+      $masterid = inline_template("<%= @masters[\"cell-#{@cell}\"].index(\"core-#{@id}\") + 1%>")
     } else { $role = 'slave' }
 
     file {
 
-      ["/root/coreos/${id}",
-       "/root/coreos/${id}/conf",
-       "/root/coreos/${id}/conf/openstack",
-       "/root/coreos/${id}/conf/openstack/latest"]:
+      ["/root/coreos/core-${id}",
+       "/root/coreos/core-${id}/conf",
+       "/root/coreos/core-${id}/conf/openstack",
+       "/root/coreos/core-${id}/conf/openstack/latest"]:
         ensure => directory,
         owner  => 'root',
         group  => 'root',
         mode   => '0755';
 
-      "/root/coreos/${id}/conf/openstack/latest/user_data":
+      "/root/coreos/core-${id}/conf/openstack/latest/user_data":
         ensure  => file,
         content => template("${module_name}/cloud-config.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
 
-      "/root/coreos/${id}/${id}.img":
+      "/root/coreos/core-${id}/core-${id}.img":
         ensure   => file,
         source   => '/root/coreos/common/coreos.img',
         replace  => false,
@@ -56,20 +56,20 @@ class r_kvm::coreos {
 
       file {
 
-        "/root/coreos/${id}/conf/prometheus":
+        "/root/coreos/core-${id}/conf/prometheus":
           ensure => directory,
           owner  => 'root',
           group  => 'root',
           mode   => '0755';
 
-        "/root/coreos/${id}/conf/prometheus/prometheus.conf":
+        "/root/coreos/core-${id}/conf/prometheus/prometheus.conf":
           ensure  => file,
           content => template("${module_name}/prometheus.conf.erb"),
           owner   => 'root',
           group   => 'root',
           mode    => '0644';
 
-        "/root/coreos/${id}/conf/prometheus/prometheus.rules":
+        "/root/coreos/core-${id}/conf/prometheus/prometheus.rules":
           ensure  => file,
           content => template("${module_name}/prometheus.rules.erb"),
           owner   => 'root',
