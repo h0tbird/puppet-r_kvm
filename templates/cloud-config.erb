@@ -90,8 +90,8 @@ coreos:
 
  etcd2:
   name: core-<%= @id %>
-  initial-cluster: core-1=http://core-1:2380,core-1=http://core-1:7001,core-2=http://core-2:2380,core-2=http://core-2:7001,core-3=http://core-3:2380,core-3=http://core-3:7001
-<% if @id < 4 -%>
+  initial-cluster: <% @masters["cell-#{@cell}"].each do |master| -%><%= master %>=http://<%= master %>:2380,<%= master %>=http://<%= master %>:7001,<% end %>
+<% if @masterid -%>
   listen-peer-urls: http://core-<%= @id %>:2380,http://core-<%= @id %>:7001
   listen-client-urls: http://127.0.0.1:2379,http://127.0.0.1:4001,http://core-<%= @id %>:2379,http://core-<%= @id %>:4001
   initial-advertise-peer-urls: http://core-<%= @id %>:2380,http://core-<%= @id %>:7001
