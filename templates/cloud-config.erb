@@ -1,6 +1,6 @@
 #cloud-config
 
-hostname: <%= @id %>.<%= @domain %>
+hostname: core-<%= @id %>.<%= @domain %>
 
 write_files:
 
@@ -89,13 +89,13 @@ coreos:
   metadata: "role=<%= @role %><% if @masterid -%>,masterid=<%= @masterid %><% end -%>"
 
  etcd2:
-  name: <%= @id %>
+  name: core-<%= @id %>
   initial-cluster: core-1=http://core-1:2380,core-1=http://core-1:7001,core-2=http://core-2:2380,core-2=http://core-2:7001,core-3=http://core-3:2380,core-3=http://core-3:7001
-<% if @id < 'core-4' -%>
-  listen-peer-urls: http://<%= @id %>:2380,http://<%= @id %>:7001
-  listen-client-urls: http://127.0.0.1:2379,http://127.0.0.1:4001,http://<%= @id %>:2379,http://<%= @id %>:4001
-  initial-advertise-peer-urls: http://<%= @id %>:2380,http://<%= @id %>:7001
-  advertise-client-urls: http://<%= @id %>:2379,http://<%= @id %>:4001
+<% if @id < 4 -%>
+  listen-peer-urls: http://core-<%= @id %>:2380,http://core-<%= @id %>:7001
+  listen-client-urls: http://127.0.0.1:2379,http://127.0.0.1:4001,http://core-<%= @id %>:2379,http://core-<%= @id %>:4001
+  initial-advertise-peer-urls: http://core-<%= @id %>:2380,http://core-<%= @id %>:7001
+  advertise-client-urls: http://core-<%= @id %>:2379,http://core-<%= @id %>:4001
   initial-cluster-state: new
 <% else -%>
   listen-client-urls: http://127.0.0.1:2379,http://127.0.0.1:4001
