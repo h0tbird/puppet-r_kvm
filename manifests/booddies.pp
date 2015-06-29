@@ -27,6 +27,28 @@ class r_kvm::booddies {
     }
   }
 
+  $leases = hiera('DnsmasqLeases')
+
+  file {
+
+    '/data/boot/dnsmasq/dnsmasq.leases':
+      ensure  => file,
+      content => template("${module_name}/dnsmasq.leases.erb"),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      replace => false,
+      before  => Service['boot'];
+
+    '/data/boot/dnsmasq/dhcp_hosts':
+      ensure  => file,
+      content => template("${module_name}/dhcp_hosts.erb"),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      before  => Service['boot'];
+  }
+
   #---------------------
   # Start the services:
   #---------------------
