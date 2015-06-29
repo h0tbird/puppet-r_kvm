@@ -31,6 +31,12 @@ class r_kvm::booddies {
 
   file {
 
+    ['/data','/data/boot','/data/boot/dnsmasq']:
+      ensure => directory,
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0755';
+
     '/data/boot/dnsmasq/dnsmasq.leases':
       ensure  => file,
       content => template("${module_name}/dnsmasq.leases.erb"),
