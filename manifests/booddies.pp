@@ -38,7 +38,7 @@ class r_kvm::booddies {
       group   => 'root',
       mode    => '0644',
       replace => false,
-      before  => Service['boot'];
+      before  => File['boot'];
 
     '/data/boot/dnsmasq/dhcp_hosts':
       ensure  => file,
@@ -46,7 +46,7 @@ class r_kvm::booddies {
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
-      before  => Service['boot'];
+      before  => File['boot'];
   }
 
   #---------------------
