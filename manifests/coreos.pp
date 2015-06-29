@@ -18,9 +18,9 @@ class r_kvm::coreos {
   range("${min}", "${max}").each |$id| {
 
     # Setup 'role' and 'masterid' metaparams:
-    if "core-${id}" in $masters["cell-${::cell}"] {
+    if "core-${id}" in $masters {
       $role = 'master'
-      $masterid = inline_template("<%= @masters[\"cell-#{@cell}\"].index(\"core-#{@id}\") + 1%>")
+      $masterid = inline_template("<%= @masters.index(\"core-#{@id}\") + 1%>")
     } else { $role = 'slave' }
 
     file {
