@@ -27,11 +27,15 @@ class r_kvm::booddies {
     }
   }
 
+  #---------------------------
+  # Setup static DHCP leases:
+  #---------------------------
+
   $leases = hiera('DnsmasqLeases')
 
   file {
 
-    ['/data','/data/boot','/data/boot/dnsmasq']:
+    ['/data','/data/boot','/data/data','/data/boot/dnsmasq']:
       ensure => directory,
       owner  => 'root',
       group  => 'root',
@@ -53,6 +57,27 @@ class r_kvm::booddies {
       group   => 'root',
       mode    => '0644',
       before  => File['boot'];
+  }
+
+  #---------------------------------------
+  # Clone PXE and Kickstart repositories:
+  #---------------------------------------
+
+  vcsrepo {
+
+    '/data/boot/pxelinux':
+      ensure   => present,
+      provider => git,
+      source   => 'http://gito01/cgit/config-pxelinux',
+      revision => 'master',
+      before  => File['boot'];
+
+    '/data/data/kickstart':
+      ensure   => present,
+      provider => git,
+      source   => 'http://gito01/cgit/config-pxelinux',
+      revision => 'master',
+      before  => File['data'];
   }
 
   #---------------------
