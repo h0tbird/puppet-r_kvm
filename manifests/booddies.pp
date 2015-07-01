@@ -75,7 +75,7 @@ class r_kvm::booddies {
     '/data/data/kickstart':
       ensure   => present,
       provider => git,
-      source   => 'http://gito01/cgit/config-pxelinux',
+      source   => 'http://gito01/cgit/config-kickstart',
       revision => 'master',
       before  => File['data'];
   }
