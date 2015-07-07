@@ -4,11 +4,8 @@
 
 global: {
 
-  scrape_interval: "15s"     # By default, scrape targets every 15 seconds.
-  evaluation_interval: "15s" # By default, evaluate rules every 15 seconds.
-
-  # Attach these extra labels to all time series collected by this
-  # Prometheus instance.
+  scrape_interval: "15s"
+  evaluation_interval: "15s"
 
   labels: {
     label: {
@@ -21,9 +18,6 @@ global: {
     }
   }
 
-  # Load and evaluate rules in this file every 'evaluation_interval' seconds.
-  # This field may be repeated.
-
   rule_file: "/etc/prometheus/prometheus.rules"
 }
 
@@ -34,22 +28,10 @@ global: {
 
 job: {
 
-  # The job name is added as a label `job={job-name}` to any time series
-  # scraped from this job.
-
   name: "prometheus"
-
-  # Override the global default and scrape targets from this job every 5
-  # seconds.
-
   scrape_interval: "5s"
 
-  # Let's define a group of static targets to scrape for this job. In this
-  # case, only one.
-
   target_group: {
-
-    # These endpoints are scraped via HTTP.
 
     target: "http://core-1<% if @domain -%>.<%= @domain %><% end -%>:9191/metrics"
     target: "http://core-2<% if @domain -%>.<%= @domain %><% end -%>:9191/metrics"
