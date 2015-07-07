@@ -2,79 +2,55 @@
 # Global default settings:
 #------------------------------------------------------------------------------
 
-global: {
-
-  scrape_interval: "15s"
-  evaluation_interval: "15s"
-
-  labels: {
-    label: {
-      name: "cell"
-      value: "0"
-    }
-    label: {
-      name: "datacenter"
-      value: "ofi"
-    }
-  }
-
-  rule_file: "/etc/prometheus/prometheus.rules"
-}
+global:
+  scrape_interval: 1m
+  scrape_timeout: 10s
+  evaluation_interval: 10s
+  labels:
+    cell: 0
+    datacenter: ofi
 
 #------------------------------------------------------------------------------
-# A job definition containing exactly one endpoint to scrape:
-# Prometheus itself.
+# Rule files:
+#------------------------------------------------------------------------------
+
+rule_files:
+ - /etc/prometheus/prometheus.rules
+
+#------------------------------------------------------------------------------
+# Scrape Prometheus:
 #-----------------------------------------------------------------------------
 
-job: {
+scrape_configs:
 
-  name: "prometheus"
-  scrape_interval: "5s"
-
-  target_group: {
-
-    target: "http://core-1<% if @domain -%>.<%= @domain %><% end -%>:9191/metrics"
-    target: "http://core-2<% if @domain -%>.<%= @domain %><% end -%>:9191/metrics"
-    target: "http://core-3<% if @domain -%>.<%= @domain %><% end -%>:9191/metrics"
-  }
-}
+- job_name: prometheus
+  scrape_interval: 10s
+  scheme: http
+  target_groups:
+  - targets:
+    - core-1<% if @domain -%>.<%= @domain %><% end -%>:9191
+    - core-2<% if @domain -%>.<%= @domain %><% end -%>:9191
+    - core-3<% if @domain -%>.<%= @domain %><% end -%>:9191
 
 #------------------------------------------------------------------------------
 # Scrape cAdvisor:
 #------------------------------------------------------------------------------
 
-job: {
-
-  name: "cAdvisor"
-  scrape_interval: "5s"
-
-  target_group: {
-
-    target: "http://core-1<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
-    target: "http://core-2<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
-    target: "http://core-3<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
-
-    labels: {
-      label: {
-        name: "group"
-        value: "masters"
-      }
-    }
-  }
-
-  target_group: {
-
-    target: "http://core-4<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
-    target: "http://core-5<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
-    target: "http://core-6<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
-    target: "http://core-7<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
-    target: "http://core-8<% if @domain -%>.<%= @domain %><% end -%>:4194/metrics"
-
-    labels: {
-      label: {
-        name: "group"
-        value: "slaves"
-      }
-    }
-  }
-}
+- job_name: cAdvisor
+  scrape_interval: 10s
+  scheme: http
+  target_groups:
+  - targets:
+    - core-1<% if @domain -%>.<%= @domain %><% end -%>:4194
+    - core-2<% if @domain -%>.<%= @domain %><% end -%>:4194
+    - core-3<% if @domain -%>.<%= @domain %><% end -%>:4194
+    labels:
+      group: masters
+  - targets:
+    - core-4<% if @domain -%>.<%= @domain %><% end -%>:4194
+    - core-5<% if @domain -%>.<%= @domain %><% end -%>:4194
+    - core-6<% if @domain -%>.<%= @domain %><% end -%>:4194
+    - core-7<% if @domain -%>.<%= @domain %><% end -%>:4194
+    - core-8<% if @domain -%>.<%= @domain %><% end -%>:4194
+    labels:
+      group: slaves
