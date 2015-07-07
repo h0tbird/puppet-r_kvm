@@ -62,9 +62,9 @@ class r_kvm::coreos {
           group  => 'root',
           mode   => '0755';
 
-        "/root/coreos/core-${id}/conf/prometheus/prometheus.conf":
+        "/root/coreos/core-${id}/conf/prometheus/prometheus.yml":
           ensure  => file,
-          content => template("${module_name}/prometheus.conf.erb"),
+          content => template("${module_name}/prometheus.yml.erb"),
           owner   => 'root',
           group   => 'root',
           mode    => '0644';
