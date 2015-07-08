@@ -41,6 +41,13 @@ class r_kvm::coreos {
         group   => 'root',
         mode    => '0644';
 
+      "/root/coreos/core-${id}/conf/coreos.conf":
+        ensure  => file,
+        content => template("${module_name}/coreos.conf.erb"),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644';
+
       "/root/coreos/core-${id}/core-${id}.img":
         ensure   => file,
         source   => '/root/coreos/common/coreos.img',
