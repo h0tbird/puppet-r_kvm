@@ -14,8 +14,10 @@ class r_kvm::coreos {
   #----------------------------------------------------
 
   $masters = hiera('MasterHosts')
+  $ceph_drives = hiera('CephDataDrives')
+  $hdfs_drives = hiera('HDFSDataDrives')
 
-  range("${min}", "${max}").each |$id| {
+  range("${min}", "${max}").each |$index, $id| {
 
     # Setup 'role' and 'masterid' metaparams:
     if "core-${id}" in $masters {
