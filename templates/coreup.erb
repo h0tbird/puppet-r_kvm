@@ -117,7 +117,7 @@ function dynamic_netdev() {
 
 function dynamic_drives() {
   for drive in ${CEPH_DRIVES} ${HDFS_DRIVES}; do
-    [ -b "${drive}" ] && echo -n "-drive file=${drive},media=disk "
+    [ -b "${drive}" ] && echo -n "-drive file=${drive},if=scsi,media=disk "
   done
 }
 
@@ -132,6 +132,7 @@ function create_vm() {
   -boot order=c,reboot-timeout=60,strict=on \
   -cpu host \
   -nodefconfig \
+  -nodefaults \
   -device sga \
   -display none \
   -daemonize \
