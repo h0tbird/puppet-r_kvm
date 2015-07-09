@@ -1,6 +1,6 @@
 class r_kvm::packages {
 
-  package { ['wget','bzip2','socat','qemu-system-x86','seabios','qemu-img','jq']:
+  package { ['wget','bzip2','socat','jq']:
     ensure => present,
   }
 }
