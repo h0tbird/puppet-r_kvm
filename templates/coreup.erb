@@ -156,6 +156,11 @@ function create_vm() {
   -device isa-serial,chardev=console,id=serial0 && return 0 || return 1
 }
 
+function protect_from_oom() {
+  local vm_pid=$(pgrep -f "qemu.*${NAME}")
+  echo '-1000' > /proc/${vm_pid}/oom_score_adj
+}
+
 function powerdown_vm() {
   (echo '{ "execute": "qmp_capabilities" }{ "execute": "system_powerdown" }' | \
   socat - unix-connect:${RUNDIR}/monitor.sock &> /dev/null) || return 1
@@ -235,6 +240,12 @@ function main() {
   MSG="[${NAME}] Starting the virtual machine..."; log "${MSG}"
   (action "${MSG}" create_vm) && log 'OK! VM is running' || {
     log 'Ops! Unable to start VM'; exit 1
+  }
+
+  # Set OOM kill protection:
+  MSG="[${NAME}] Protecting from OOM killer... "; log "${MSG}"
+  (action "${MSG}" protect_from_oom) && log 'OK! VM PID is protected' || {
+    log 'Ops! Unable to deploy the OOM killer shield'; exit 1
   }
 
   # Test if port 22 is listening:
