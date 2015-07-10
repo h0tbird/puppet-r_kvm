@@ -1,21 +1,50 @@
-# Configuration file for ksmtuned.
+# Number of seconds ksmtuned should sleep between tuning adjustments
+# Every KSM_MONITOR_INTERVAL seconds ksmtuned adjust how aggressive KSM will
+# search for duplicated pages based on free memory.
 
-# How long ksmtuned should sleep between tuning adjustments
-# KSM_MONITOR_INTERVAL=60
+KSM_MONITOR_INTERVAL=60
 
 # Millisecond sleep between ksm scans for 16Gb server.
 # Smaller servers sleep more, bigger sleep less.
-# KSM_SLEEP_MSEC=10
+# How many Milliseconds to sleep between scans of 16GB of RAM.
+# The actual sleep time is calculated as sleep = KSM_SLEEP_MSEC * 16 / Total GB of RAM
+# The final sleep value will be written to /sys/kernel/mm/ksm/sleep_millisecs
 
-# KSM_NPAGES_BOOST=300
-# KSM_NPAGES_DECAY=-50
-# KSM_NPAGES_MIN=64
-# KSM_NPAGES_MAX=1250
+KSM_SLEEP_MSEC=100
 
-# KSM_THRES_COEF=20
-# KSM_THRES_CONST=2048
+# KSM_NPAGES_BOOST: amount to increment the number of pages to scan
+# The number of pages to be scanned will be increased by KSM_NPAGES_BOOST
+# when the amount of free ram < threshold (see KSM_THRES_* below)
+
+KSM_NPAGES_BOOST=300
+
+# KSM_NPAGES_DECAY: amount to decrease the number of pages to scan
+# The number of pages to be scanned will be decreased by KSM_NPAGES_DECAY
+# when the amount of free ram >= threshold (see KSM_THRES_* below)
+
+KSM_NPAGES_DECAY=-50
+
+# KSM_NPAGES_MIN: Minimum number of pages to be scanned at all times
+
+KSM_NPAGES_MIN=64
+
+# KSM_NPAGES_MAX: Maximum number of pages to be scanned at all times
+
+KSM_NPAGES_MAX=1250
+
+# KSM_THRES_COEF: Decimal percentage of free RAM
+# If free memory is less than this percentage KSM will be activated
+
+KSM_THRES_COEF=20
+
+# KSM_THRES_CONST: Bytes
+# If free memory is less than this number KSM will be activated
+
+KSM_THRES_CONST=2048
+
+# NOTE: Only KSM_THRES_CONST or KSM_THRES_COEF is actually used.
+# Whichever results in a larger number wins.
 
 # uncomment the following if you want ksmtuned debug info
-
 # LOGFILE=/var/log/ksmtuned
 # DEBUG=1
