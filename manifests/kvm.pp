@@ -12,7 +12,7 @@ class r_kvm::kvm {
   # Kernel samepage merging:
   #--------------------------
 
-  if $ksm {
+  if hiera('KSM') {
 
     file { '/etc/ksmtuned.conf':
       ensure  => present,
