@@ -41,8 +41,8 @@ scrape_configs:
   scheme: http
   target_groups:
   - targets:
-<% @masters.each do |master| %>
-    - <% master %><% if @domain -%>.<%= @domain %><% end -%>:4194
+<% @masters.each do |master| -%>
+    - <%= master %><% if @domain -%>.<%= @domain %><% end -%>:4194
 <% end -%>
     labels:
       group: masters
