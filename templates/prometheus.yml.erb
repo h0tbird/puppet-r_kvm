@@ -28,8 +28,8 @@ scrape_configs:
   scheme: http
   target_groups:
   - targets:
-<% @masters.each do |master| %>
-    - <% master %><% if @domain -%>.<%= @domain %><% end -%>:9191
+<% @masters.each do |master| -%>
+    - <%= master %><% if @domain -%>.<%= @domain %><% end -%>:9191
 <% end -%>
 
 #------------------------------------------------------------------------------
