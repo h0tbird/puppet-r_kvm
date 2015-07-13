@@ -28,9 +28,9 @@ scrape_configs:
   scheme: http
   target_groups:
   - targets:
-    - core-1<% if @domain -%>.<%= @domain %><% end -%>:9191
-    - core-2<% if @domain -%>.<%= @domain %><% end -%>:9191
-    - core-3<% if @domain -%>.<%= @domain %><% end -%>:9191
+<% @masters.each do |master| %>
+    - <% master %><% if @domain -%>.<%= @domain %><% end -%>:9191
+<% end -%>
 
 #------------------------------------------------------------------------------
 # Scrape cAdvisor:
@@ -41,9 +41,9 @@ scrape_configs:
   scheme: http
   target_groups:
   - targets:
-    - core-1<% if @domain -%>.<%= @domain %><% end -%>:4194
-    - core-2<% if @domain -%>.<%= @domain %><% end -%>:4194
-    - core-3<% if @domain -%>.<%= @domain %><% end -%>:4194
+<% @masters.each do |master| %>
+    - <% master %><% if @domain -%>.<%= @domain %><% end -%>:4194
+<% end -%>
     labels:
       group: masters
   - targets:
