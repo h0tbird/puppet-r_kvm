@@ -48,9 +48,9 @@ scrape_configs:
       group: masters
   - targets:
 <% 12.times do |id| -%>
-  <% !@masters.include?("core-#{id}") %>
-    - core-<%= id %><% if @domain -%>.<%= @domain %><% end -%>:4194
-  <% end -%>
+<% if !@masters.include?("core-#{id+1}") -%>
+    - core-<%= id+1 %><% if @domain -%>.<%= @domain %><% end -%>:4194
+<% end -%>
 <% end -%>
     labels:
       group: slaves
