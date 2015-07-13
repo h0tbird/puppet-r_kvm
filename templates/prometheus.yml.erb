@@ -47,10 +47,10 @@ scrape_configs:
     labels:
       group: masters
   - targets:
-    - core-4<% if @domain -%>.<%= @domain %><% end -%>:4194
-    - core-5<% if @domain -%>.<%= @domain %><% end -%>:4194
-    - core-6<% if @domain -%>.<%= @domain %><% end -%>:4194
-    - core-7<% if @domain -%>.<%= @domain %><% end -%>:4194
-    - core-8<% if @domain -%>.<%= @domain %><% end -%>:4194
+<% 12.times do |id| -%>
+  <% !@masters.include?("core-#{id}") %>
+    - core-<%= id %><% if @domain -%>.<%= @domain %><% end -%>:4194
+  <% end -%>
+<% end -%>
     labels:
       group: slaves
