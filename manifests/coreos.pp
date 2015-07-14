@@ -65,6 +65,10 @@ class r_kvm::coreos {
 
       file {
 
+        #--------------------
+        # Prometheus config:
+        #--------------------
+
         "/root/coreos/core-${id}/conf/prometheus":
           ensure => directory,
           owner  => 'root',
@@ -84,6 +88,23 @@ class r_kvm::coreos {
           owner   => 'root',
           group   => 'root',
           mode    => '0644';
+
+        #--------------
+        # Ceph config:
+        #--------------
+
+        "/root/coreos/core-${id}/conf/ceph":
+          ensure => directory,
+          owner  => 'root',
+          group  => 'root',
+          mode   => '0755';
+
+        "/root/coreos/core-${id}/conf/ceph/populate_etcd":
+          ensure  => file,
+          content => template("${module_name}/populate_etcd.erb"),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0755';
       }
     }
   }
