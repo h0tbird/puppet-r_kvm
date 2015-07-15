@@ -47,8 +47,8 @@ function main() {
   local MSG3="[Populate etcd] Ops! Cannot retrieve the config hash from etcd"
   local MSG4="[Populate etcd] Ok! config hash initialized"
   local MSG5="[Populate etcd] Ops! Cannot initialize the config hash"
-  echo ${MSG1}; CURRENT_HASH=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash) && \
-  echo ${MSG2} || { echo ${MSG3}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash 0 && \
+  echo ${MSG1}; CURRENT_HASH=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash 2> /dev/null) && \
+  echo ${MSG2} || { echo ${MSG3}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash 0 &> /dev/null && \
   echo ${MSG4} || { echo ${MSG5}; exit ${E_BAD_SET}; }; }
 
   # Check whether changes are needed:
