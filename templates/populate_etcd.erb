@@ -8,10 +8,12 @@
 #------------------------------------------------------------------------------
 
 # Settings:
-CLUSTER_NAME='ceph-<%= @fqdn_3 %>'
+readonly CLUSTER_NAME='ceph-<%= @fqdn_3 %>'
 
 # Return codes:
 readonly E_BAD_CMD=10
+readonly E_BAD_HASH=11
+readonly E_BAD_SET=11
 
 # Commands:
 readonly CMD_MD5SUM=$(type -P md5sum); [ -z "${CMD_MD5SUM}" ] && exit ${E_BAD_CMD}
@@ -24,8 +26,18 @@ readonly CMD_ETCDCTL=$(type -P etcdctl); [ -z "${CMD_ETCDCTL}" ] && exit ${E_BAD
 #------------------------------------------------------------------------------
 
 desired_hash=$(${CMD_CAT} $0 | ${CMD_MD5SUM} | ${CMD_AWK} '{ print $1 }')
-current_hash=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash)
-[ "${desired_hash}" == "${current_hash}" ] && exit 0
+
+MSG1="[Populate etcd] Getting the hash of the current Ceph config from Etcd..."
+MSG2="[Populate etcd] OK! The hash has been retrieved"
+MSG3="[Populate etcd] Ops! Cannot retrieve the current config hash"
+echo ${MSG1}; current_hash=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash) && \
+echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_HASH}; }
+
+MSG1="[Populate etcd] Checking whether config state is equal to the desired one..."
+MSG2="[Populate etcd] Ok! There is no need to push config to etcd"
+MSG2="[Populate etcd] Ops! There are pending configuration changes"
+echo ${MSG1}; [ "${desired_hash}" == "${current_hash}" ] && echo ${MSG2} && exit 0
+echo ${MSG3}
 
 #------------------------------------------------------------------------------
 # Push the config to Etcd:
@@ -35,4 +47,8 @@ current_hash=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash)
 # Set the new configuration hash:
 #------------------------------------------------------------------------------
 
-${CMD_ETCDCTL} put /ceph-config/${CLUSTER_NAME}/config_hash ${desired_hash}
+MSG1="[Populate etcd] Updating the configuration hash in etd..."
+MSG2="[Populate etcd] Ok! The new hash is ${desired_hash}"
+MSG3="[Populate etcd] Ops! Cannot set the new hash value"
+echo ${MSG1}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash ${desired_hash} && \
+echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_SET}; }
