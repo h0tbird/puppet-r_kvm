@@ -9,6 +9,7 @@
 
 # Settings:
 readonly CLUSTER_NAME='ceph-<%= @fqdn_3 %>'
+readonly DESIRED_HASH=$(cat $0 | md5sum | awk '{ print $1 }')
 
 # Return codes:
 readonly E_BAD_CMD=10
@@ -16,43 +17,43 @@ readonly E_BAD_HASH=11
 readonly E_BAD_SET=11
 
 # Commands:
-readonly CMD_MD5SUM=$(type -P md5sum); [ -z "${CMD_MD5SUM}" ] && exit ${E_BAD_CMD}
-readonly CMD_CAT=$(type -P cat); [ -z "${CMD_CAT}" ] && exit ${E_BAD_CMD}
-readonly CMD_AWK=$(type -P awk); [ -z "${CMD_AWK}" ] && exit ${E_BAD_CMD}
 readonly CMD_ETCDCTL=$(type -P etcdctl); [ -z "${CMD_ETCDCTL}" ] && exit ${E_BAD_CMD}
 
 #------------------------------------------------------------------------------
-# Compute the hash of this file:
+# Main function:
 #------------------------------------------------------------------------------
 
-desired_hash=$(${CMD_CAT} $0 | ${CMD_MD5SUM} | ${CMD_AWK} '{ print $1 }')
+function main() {
 
-MSG1="[Populate etcd] Getting the current config hash from etcd..."
-MSG2="[Populate etcd] OK! The hash has been retrieved"
-MSG3="[Populate etcd] Ops! Cannot retrieve the config hash from etcd"
-echo ${MSG1}; current_hash=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash) && \
-echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_HASH}; }
+  # Get the current hash from etcd:
+  local MSG1="[Populate etcd] Getting the current config hash from etcd..."
+  local MSG2="[Populate etcd] OK! The hash has been retrieved"
+  local MSG3="[Populate etcd] Ops! Cannot retrieve the config hash from etcd"
+  echo ${MSG1}; CURRENT_HASH=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash) && \
+  echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_HASH}; }
 
-MSG1="[Populate etcd] Comparing '${desired_hash}' with '${current_hash}'"
-MSG2="[Populate etcd] Ok! There is no need to push config to etcd"
-MSG3="[Populate etcd] Ops! There are pending configuration changes"
-echo ${MSG1}; [ "${desired_hash}" == "${current_hash}" ] && echo ${MSG2} && exit 0
-echo ${MSG3}
+  # Check whether changes are needed:
+  local MSG1="[Populate etcd] Comparing '${DESIRED_HASH}' with '${CURRENT_HASH}'"
+  local MSG2="[Populate etcd] Ok! There is no need to push config to etcd"
+  local MSG3="[Populate etcd] Ops! There are pending configuration changes"
+  echo ${MSG1}; [ "${DESIRED_HASH}" == "${CURRENT_HASH}" ] && echo ${MSG2} && exit 0
+  echo ${MSG3}
+
+  # Push the config to Etcd:
+  echo "<push config to etcd>"
+
+  # Set the new configuration hash:
+  local MSG1="[Populate etcd] Updating the configuration hash in etcd..."
+  local MSG2="[Populate etcd] Ok! The new hash is ${desired_hash}"
+  local MSG3="[Populate etcd] Ops! Cannot set the new hash value"
+  echo ${MSG1}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash ${desired_hash} &> /dev/null && \
+  echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_SET}; }
+}
 
 #------------------------------------------------------------------------------
-# Push the config to Etcd:
+# Entry point:
 #------------------------------------------------------------------------------
 
-echo "<push config to etcd>"
-
-#------------------------------------------------------------------------------
-# Set the new configuration hash:
-#------------------------------------------------------------------------------
-
-MSG1="[Populate etcd] Updating the configuration hash in etd..."
-MSG2="[Populate etcd] Ok! The new hash is ${desired_hash}"
-MSG3="[Populate etcd] Ops! Cannot set the new hash value"
-echo ${MSG1}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash ${desired_hash} && \
-echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_SET}; }
+main "@"
 
 # vim: set syntax=sh expandtab tabstop=2:
