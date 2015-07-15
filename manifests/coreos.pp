@@ -16,6 +16,7 @@ class r_kvm::coreos {
   $masters = hiera('MasterHosts')
   $ceph_drives = hiera('CephDataDrives')
   $hdfs_drives = hiera('HDFSDataDrives')
+  $ceph_config = hiera('CephConfig')
 
   range("${min}", "${max}").each |$index, $id| {
 
