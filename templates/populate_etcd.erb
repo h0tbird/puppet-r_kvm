@@ -30,7 +30,7 @@ function push_config_to_etcd() {
   # <%= section %>:
 <% @ceph_config[section].each do |key, val| -%>
   echo "[Populate etcd] Setting <%= key %>=<%= val %>"
-  ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/<%= section %>/<%= key %> '<%= val %>' || return -1
+  ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/<%= section %>/<%= key %> '<%= val %>' &> /dev/null || return -1
 <% end -%>
 <% end -%>
 }
