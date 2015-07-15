@@ -14,7 +14,7 @@ readonly DESIRED_HASH=$(cat $0 | md5sum | awk '{ print $1 }')
 # Return codes:
 readonly E_BAD_CMD=10
 readonly E_BAD_HASH=11
-readonly E_BAD_SET=11
+readonly E_BAD_SET=12
 
 # Commands:
 readonly CMD_ETCDCTL=$(type -P etcdctl); [ -z "${CMD_ETCDCTL}" ] && exit ${E_BAD_CMD}
@@ -44,9 +44,9 @@ function main() {
 
   # Set the new configuration hash:
   local MSG1="[Populate etcd] Updating the configuration hash in etcd..."
-  local MSG2="[Populate etcd] Ok! The new hash is ${desired_hash}"
+  local MSG2="[Populate etcd] Ok! The new hash is ${DESIRED_HASH}"
   local MSG3="[Populate etcd] Ops! Cannot set the new hash value"
-  echo ${MSG1}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash ${desired_hash} &> /dev/null && \
+  echo ${MSG1}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash ${DESIRED_HASH} &> /dev/null && \
   echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_SET}; }
 }
 
