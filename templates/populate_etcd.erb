@@ -35,13 +35,15 @@ echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_HASH}; }
 
 MSG1="[Populate etcd] Comparing '${desired_hash}' with '${current_hash}'"
 MSG2="[Populate etcd] Ok! There is no need to push config to etcd"
-MSG2="[Populate etcd] Ops! There are pending configuration changes"
+MSG3="[Populate etcd] Ops! There are pending configuration changes"
 echo ${MSG1}; [ "${desired_hash}" == "${current_hash}" ] && echo ${MSG2} && exit 0
 echo ${MSG3}
 
 #------------------------------------------------------------------------------
 # Push the config to Etcd:
 #------------------------------------------------------------------------------
+
+echo "<push config to etcd>"
 
 #------------------------------------------------------------------------------
 # Set the new configuration hash:
