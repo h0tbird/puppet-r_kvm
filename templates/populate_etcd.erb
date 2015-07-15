@@ -27,13 +27,13 @@ readonly CMD_ETCDCTL=$(type -P etcdctl); [ -z "${CMD_ETCDCTL}" ] && exit ${E_BAD
 
 desired_hash=$(${CMD_CAT} $0 | ${CMD_MD5SUM} | ${CMD_AWK} '{ print $1 }')
 
-MSG1="[Populate etcd] Getting the hash of the current Ceph config from Etcd..."
+MSG1="[Populate etcd] Getting the current config hash from etcd..."
 MSG2="[Populate etcd] OK! The hash has been retrieved"
-MSG3="[Populate etcd] Ops! Cannot retrieve the current config hash"
+MSG3="[Populate etcd] Ops! Cannot retrieve the config hash from etcd"
 echo ${MSG1}; current_hash=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash) && \
 echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_HASH}; }
 
-MSG1="[Populate etcd] Checking whether config state is equal to the desired one..."
+MSG1="[Populate etcd] Comparing '${desired_hash}' with '${current_hash}'"
 MSG2="[Populate etcd] Ok! There is no need to push config to etcd"
 MSG2="[Populate etcd] Ops! There are pending configuration changes"
 echo ${MSG1}; [ "${desired_hash}" == "${current_hash}" ] && echo ${MSG2} && exit 0
@@ -52,3 +52,5 @@ MSG2="[Populate etcd] Ok! The new hash is ${desired_hash}"
 MSG3="[Populate etcd] Ops! Cannot set the new hash value"
 echo ${MSG1}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash ${desired_hash} && \
 echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_SET}; }
+
+# vim: set syntax=sh expandtab tabstop=2:
