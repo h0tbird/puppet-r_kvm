@@ -15,8 +15,7 @@ readonly DESIRED_HASH=$(cat $0 | md5sum | awk '{ print $1 }')
 # Return codes:
 readonly E_BAD_CMD=10
 readonly E_BAD_LOCK=11
-readonly E_BAD_HASH=12
-readonly E_BAD_SET=13
+readonly E_BAD_SET=12
 
 # Commands:
 readonly CMD_ETCDCTL=$(type -P etcdctl); [ -z "${CMD_ETCDCTL}" ] && exit ${E_BAD_CMD}
@@ -28,14 +27,20 @@ readonly CMD_ETCDCTL=$(type -P etcdctl); [ -z "${CMD_ETCDCTL}" ] && exit ${E_BAD
 function mutex_lock() {
 
   LOCK=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/bootstrap-lock)
+  RET=$?
 
-  if [[ "$?" -eq 4 ]]; then
+  echo "1- The return code is ${RET} and the value is ${LOCK}"
+
+  if [[ "${RET}" -eq 4 ]]; then
     ${CMD_ETCDCTL} mk /ceph-config/${CLUSTER_NAME}/bootstrap-lock '0'
+    echo "2- The return code is $?"
   elif [[ "${LOCK}" != 0 ]]; then
     ${CMD_ETCDCTL} watch /ceph-config/${CLUSTER_NAME}/bootstrap-lock
+    echo "3- The return code is $?"
   fi
 
   ${CMD_ETCDCTL} set --swap-with-value '0' /ceph-config/${CLUSTER_NAME}/bootstrap-lock '1'
+  echo "4- The return code is $?"
 }
 
 function mutex_unlock() {
