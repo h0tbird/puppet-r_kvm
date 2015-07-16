@@ -40,7 +40,11 @@ function mutex_lock() {
   fi
 
   ${CMD_ETCDCTL} set --swap-with-value '0' /ceph-config/${CLUSTER_NAME}/bootstrap-lock '1'
-  echo "4- The return code is $?"
+  RET=$?
+
+  echo "4- The return code is ${RET}"
+
+  return ${RET}
 }
 
 function mutex_unlock() {
