@@ -14,8 +14,9 @@ readonly DESIRED_HASH=$(cat $0 | md5sum | awk '{ print $1 }')
 
 # Return codes:
 readonly E_BAD_CMD=10
-readonly E_BAD_HASH=11
-readonly E_BAD_SET=12
+readonly E_BAD_LOCK=11
+readonly E_BAD_HASH=12
+readonly E_BAD_SET=13
 
 # Commands:
 readonly CMD_ETCDCTL=$(type -P etcdctl); [ -z "${CMD_ETCDCTL}" ] && exit ${E_BAD_CMD}
@@ -24,16 +25,21 @@ readonly CMD_ETCDCTL=$(type -P etcdctl); [ -z "${CMD_ETCDCTL}" ] && exit ${E_BAD
 # Functions:
 #------------------------------------------------------------------------------
 
-function get_current_hash() {
+function mutex_lock() {
 
-  CURRENT_HASH=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash 2> /dev/null)
+  LOCK=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/bootstrap-lock)
 
-  while [ "${CURRENT_HASH}" == "updating" ]; do
-    echo "[Populate etcd] Config is being updated wait 2 seconds..."; sleep 2
-    CURRENT_HASH=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash 2> /dev/null)
-  done
+  if [[ "$?" -eq 4 ]]; then
+    ${CMD_ETCDCTL} mk /ceph-config/${CLUSTER_NAME}/bootstrap-lock '0'
+  elif [[ "${LOCK}" != 0 ]]; then
+    ${CMD_ETCDCTL} watch /ceph-config/${CLUSTER_NAME}/bootstrap-lock
+  fi
 
-  echo ${CURRENT_HASH}
+  ${CMD_ETCDCTL} set --swap-with-value '0' /ceph-config/${CLUSTER_NAME}/bootstrap-lock '1'
+}
+
+function mutex_unlock() {
+  ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/bootstrap-lock '0'
 }
 
 function push_config_to_etcd() {
@@ -53,13 +59,19 @@ function push_config_to_etcd() {
 
 function main() {
 
+  # Get the bootstrap lock:
+  local MSG1="[Populate etcd] Attempting to acquire the bootstrap lock..."
+  local MSG2="[Populate etcd] Ok! Lock acquired"
+  local MSG3="[Populate etcd] Ops! Cannot acquire the lock"
+  echo ${MSG1}; mutex_lock && echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_LOCK}; }
+
   # Get the current hash from etcd:
   local MSG1="[Populate etcd] Getting the current config hash from etcd..."
   local MSG2="[Populate etcd] OK! The hash has been retrieved"
   local MSG3="[Populate etcd] Ops! Cannot retrieve the config hash from etcd"
   local MSG4="[Populate etcd] Ok! config hash initialized"
   local MSG5="[Populate etcd] Ops! Cannot initialize the config hash"
-  echo ${MSG1}; CURRENT_HASH=$(get_current_hash) && \
+  echo ${MSG1}; CURRENT_HASH=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash 2> /dev/null) && \
   echo ${MSG2} || { echo ${MSG3}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash 0 &> /dev/null && \
   echo ${MSG4} || { echo ${MSG5}; exit ${E_BAD_SET}; }; }
 
@@ -67,15 +79,8 @@ function main() {
   local MSG1="[Populate etcd] Comparing '${DESIRED_HASH}' with '${CURRENT_HASH}'"
   local MSG2="[Populate etcd] Ok! There is no need to push config to etcd"
   local MSG3="[Populate etcd] Ops! There are pending configuration changes"
-  echo ${MSG1}; [ "${DESIRED_HASH}" == "${CURRENT_HASH}" ] && echo ${MSG2} && exit 0
+  echo ${MSG1}; [ "${DESIRED_HASH}" == "${CURRENT_HASH}" ] && mutex_unlock && echo ${MSG2} && exit 0
   echo ${MSG3}
-
-  # Acquire lock to not run into race conditions with parallel bootstraps:
-  local MSG1="[Populate etcd] Acquiring etcd lock"
-  local MSG2="[Populate etcd] Ok! Lock acquired"
-  local MSG3="[Populate etcd] Ops! Unable to acquire the lock"
-  echo ${MSG1}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash updating &> /dev/null && \
-  echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_SET}; }
 
   # Push the config to Etcd:
   local MSG1="[Populate etcd] Pushing configuration to etcd..."
@@ -89,6 +94,12 @@ function main() {
   local MSG3="[Populate etcd] Ops! Cannot set the new hash value"
   echo ${MSG1}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash ${DESIRED_HASH} &> /dev/null && \
   echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_SET}; }
+
+  # Release the bootstrap lock:
+  local MSG1="[Populate etcd] Releasing the bootstrap lock..."
+  local MSG2="[Populate etcd] Ok! Bootstrap lock released"
+  local MSG3="[Populate etcd] Ops! Cannot release the lock"
+  echo ${MSG1}; mutex_unlock && echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_LOCK}; }
 }
 
 #------------------------------------------------------------------------------
