@@ -24,6 +24,18 @@ readonly CMD_ETCDCTL=$(type -P etcdctl); [ -z "${CMD_ETCDCTL}" ] && exit ${E_BAD
 # Functions:
 #------------------------------------------------------------------------------
 
+function get_current_hash() {
+
+  CURRENT_HASH=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash 2> /dev/null)
+
+  while [ "${CURRENT_HASH}" == "updating" ]; do
+    echo "[Populate etcd] Config is being updated wait 2 seconds..."; sleep 2
+    CURRENT_HASH=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash 2> /dev/null)
+  done
+
+  echo ${CURRENT_HASH}
+}
+
 function push_config_to_etcd() {
 <% sections = ['auth','global','mon','osd','client','mds'] %>
 <% sections.each do |section| -%>
@@ -47,7 +59,7 @@ function main() {
   local MSG3="[Populate etcd] Ops! Cannot retrieve the config hash from etcd"
   local MSG4="[Populate etcd] Ok! config hash initialized"
   local MSG5="[Populate etcd] Ops! Cannot initialize the config hash"
-  echo ${MSG1}; CURRENT_HASH=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/config_hash 2> /dev/null) && \
+  echo ${MSG1}; CURRENT_HASH=$(get_current_hash) && \
   echo ${MSG2} || { echo ${MSG3}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash 0 &> /dev/null && \
   echo ${MSG4} || { echo ${MSG5}; exit ${E_BAD_SET}; }; }
 
@@ -57,6 +69,13 @@ function main() {
   local MSG3="[Populate etcd] Ops! There are pending configuration changes"
   echo ${MSG1}; [ "${DESIRED_HASH}" == "${CURRENT_HASH}" ] && echo ${MSG2} && exit 0
   echo ${MSG3}
+
+  # Acquire lock to not run into race conditions with parallel bootstraps:
+  local MSG1="[Populate etcd] Acquiring etcd lock"
+  local MSG2="[Populate etcd] Ok! Lock acquired"
+  local MSG3="[Populate etcd] Ops! Unable to acquire the lock"
+  echo ${MSG1}; ${CMD_ETCDCTL} set /ceph-config/${CLUSTER_NAME}/config_hash updating &> /dev/null && \
+  echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_SET}; }
 
   # Push the config to Etcd:
   local MSG1="[Populate etcd] Pushing configuration to etcd..."
