@@ -31,12 +31,13 @@ function mutex_lock() {
     LOCK=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/bootstrap-lock)
 
     if [[ "$?" -eq 4 ]]; then
-      ${CMD_ETCDCTL} mk /ceph-config/${CLUSTER_NAME}/bootstrap-lock '0' || { sleep 1; continue; }
+      ${CMD_ETCDCTL} mk /ceph-config/${CLUSTER_NAME}/bootstrap-lock '0' &> /dev/null || \
+      { sleep 1; continue; }
     elif [[ "${LOCK}" != 0 ]]; then
-      ${CMD_ETCDCTL} watch /ceph-config/${CLUSTER_NAME}/bootstrap-lock
+      ${CMD_ETCDCTL} watch /ceph-config/${CLUSTER_NAME}/bootstrap-lock &> /dev/null
     fi
 
-    ${CMD_ETCDCTL} set --swap-with-value '0' /ceph-config/${CLUSTER_NAME}/bootstrap-lock '1' && return 0
+    ${CMD_ETCDCTL} set --swap-with-value '0' /ceph-config/${CLUSTER_NAME}/bootstrap-lock '1' &> /dev/null && return 0
     sleep 2
 
   done
