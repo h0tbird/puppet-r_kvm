@@ -26,25 +26,20 @@ readonly CMD_ETCDCTL=$(type -P etcdctl); [ -z "${CMD_ETCDCTL}" ] && exit ${E_BAD
 
 function mutex_lock() {
 
-  LOCK=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/bootstrap-lock)
-  RET=$?
+  while true; do
 
-  echo "1- The return code is ${RET} and the value is ${LOCK}"
+    LOCK=$(${CMD_ETCDCTL} get /ceph-config/${CLUSTER_NAME}/bootstrap-lock)
 
-  if [[ "${RET}" -eq 4 ]]; then
-    ${CMD_ETCDCTL} mk /ceph-config/${CLUSTER_NAME}/bootstrap-lock '0'
-    echo "2- The return code is $?"
-  elif [[ "${LOCK}" != 0 ]]; then
-    ${CMD_ETCDCTL} watch /ceph-config/${CLUSTER_NAME}/bootstrap-lock
-    echo "3- The return code is $?"
-  fi
+    if [[ "$?" -eq 4 ]]; then
+      ${CMD_ETCDCTL} mk /ceph-config/${CLUSTER_NAME}/bootstrap-lock '0' || { sleep 1; continue; }
+    elif [[ "${LOCK}" != 0 ]]; then
+      ${CMD_ETCDCTL} watch /ceph-config/${CLUSTER_NAME}/bootstrap-lock
+    fi
 
-  ${CMD_ETCDCTL} set --swap-with-value '0' /ceph-config/${CLUSTER_NAME}/bootstrap-lock '1'
-  RET=$?
+    ${CMD_ETCDCTL} set --swap-with-value '0' /ceph-config/${CLUSTER_NAME}/bootstrap-lock '1' && return 0
+    sleep 2
 
-  echo "4- The return code is ${RET}"
-
-  return ${RET}
+  done
 }
 
 function mutex_unlock() {
