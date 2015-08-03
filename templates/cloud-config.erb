@@ -49,6 +49,14 @@ coreos:
   - name: fleet.service
     command: start
 
+  - name: flanneld.service
+    drop-ins:
+     - name: 50-network-config.conf
+       content: |
+        [Service]
+        ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "<%= @flannel_config['network'] %>","SubnetLen": <%= @flannel_config['subnetlen'] %>,"SubnetMin": "<%= @flannel_config['subnetmin'] %>","SubnetMax": "<%= @flannel_config['subnetmax'] %>" }'
+    command: start
+
   - name: home-core-.ssh.mount
     command: start
     content: |

@@ -17,6 +17,7 @@ class r_kvm::coreos {
   $ceph_drives = hiera('CephDataDrives')
   $hdfs_drives = hiera('HDFSDataDrives')
   $ceph_config = hiera('CephConfig')
+  $flannel_config = hiera('Flannel')
 
   range("${min}", "${max}").each |$index, $id| {
 
