@@ -7,7 +7,7 @@ write_files:
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
    content: |
     [Service]
-    Environment='DOCKER_OPTS=--bridge=br0 --insecure-registry=regi01:5000'
+    Environment='DOCKER_OPTS=--insecure-registry=regi01:5000'
 
  - path: /home/core/.bashrc
    permissions: 0644
@@ -67,11 +67,11 @@ coreos:
      Options=trans=virtio,version=9p2000.L,ro
 
 <% @interfaces.split(',').select { |v| v =~ /^core\d+$/ }.each_with_index do |item, n| -%>
-  - name: 00-br<%= n %>.netdev
+  - name: 00-docker<%= n %>.netdev
     runtime: false
     content: |
      [NetDev]
-     Name=br<%= n %>
+     Name=docker<%= n %>
      Kind=bridge
 
   - name: 01-eth<%= n %>.network
@@ -81,13 +81,13 @@ coreos:
      Name=eth<%= n %>
 
      [Network]
-     Bridge=br<%= n %>
+     Bridge=docker<%= n %>
 
-  - name: 02-br<%= n %>.network
+  - name: 02-docker<%= n %>.network
     runtime: false
     content: |
      [Match]
-     Name=br<%= n %>
+     Name=docker<%= n %>
 
      [Network]
      DHCP=v4
