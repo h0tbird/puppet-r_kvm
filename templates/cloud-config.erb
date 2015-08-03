@@ -54,7 +54,7 @@ coreos:
      - name: 50-network-config.conf
        content: |
         [Service]
-        ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "<%= @flannel_config['network'] %>","SubnetLen": <%= @flannel_config['subnetlen'] %>,"SubnetMin": "<%= @flannel_config['subnetmin'] %>","SubnetMax": "<%= @flannel_config['subnetmax'] %>","Backend": "<%= @flannel_config['backend'] %>" }'
+        ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "<%= @flannel_config['network'] %>","SubnetLen": <%= @flannel_config['subnetlen'] %>,"SubnetMin": "<%= @flannel_config['subnetmin'] %>","SubnetMax": "<%= @flannel_config['subnetmax'] %>","Backend": {"Type": "<%= @flannel_config['backend']['type'] %>"} }'
     command: start
 
   - name: home-core-.ssh.mount
