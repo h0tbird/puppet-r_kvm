@@ -73,16 +73,6 @@ coreos:
      Name=docker0
      Kind=bridge
 
-  - name: 01-veth0.netdev
-    runtime: false
-    content: |
-     [NetDev]
-     Name=veth0
-     Kind=veth
-
-     [Peer]
-     Name=veth1
-
   - name: 00-eth0.network
     runtime: false
     content: |
@@ -90,27 +80,17 @@ coreos:
      Name=eth0
 
      [Network]
-     Bridge=docker0
-     DHCP=no
-
-  - name: 01-veth0.network
-    runtime: false
-    content: |
-     [Match]
-     Name=veth0
-
-     [Network]
-     Bridge=docker0
-     DHCP=no
-
-  - name: 02-veth1.network
-    runtime: false
-    content: |
-     [Match]
-     Name=veth1
-
-     [Network]
      DHCP=v4
+
+  - name: 00-eth1.network
+    runtime: false
+    content: |
+     [Match]
+     Name=eth1
+
+     [Network]
+     Bridge=docker0
+     DHCP=no
 
  fleet:
   metadata: "role=<%= @role %><% if @masterid -%>,masterid=<%= @masterid %><% end -%>"
