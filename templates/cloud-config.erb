@@ -103,6 +103,15 @@ coreos:
      Bridge=docker0
      DHCP=no
 
+  - name: 02-veth1.network
+    runtime: false
+    content: |
+     [Match]
+     Name=veth1
+
+     [Network]
+     DHCP=v4
+
  fleet:
   metadata: "role=<%= @role %><% if @masterid -%>,masterid=<%= @masterid %><% end -%>"
 
