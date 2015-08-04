@@ -66,33 +66,23 @@ coreos:
      Type=9p
      Options=trans=virtio,version=9p2000.L,ro
 
-<% @interfaces.split(',').select { |v| v =~ /^core\d+$/ }.each_with_index do |item, n| -%>
-  - name: 00-docker<%= n %>.netdev
+  - name: 00-docker0.netdev
     runtime: false
     content: |
      [NetDev]
-     Name=docker<%= n %>
+     Name=docker0
      Kind=bridge
 
-  - name: 01-eth<%= n %>.network
+  - name: 01-eth0.network
     runtime: false
     content: |
      [Match]
-     Name=eth<%= n %>
+     Name=eth0
 
      [Network]
-     Bridge=docker<%= n %>
-
-  - name: 02-docker<%= n %>.network
-    runtime: false
-    content: |
-     [Match]
-     Name=docker<%= n %>
-
-     [Network]
+     Bridge=docker0
      DHCP=v4
 
-<% end -%>
  fleet:
   metadata: "role=<%= @role %><% if @masterid -%>,masterid=<%= @masterid %><% end -%>"
 
