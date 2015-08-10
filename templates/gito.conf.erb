@@ -21,7 +21,7 @@ readonly LOG_FILE='<%= @config['gito']['LOG_FILE'] %>'
 declare -rA REPOS=(
 <% @config['gito']['REPOS'].each do |repo| %>
 ['<%= repo['URL'] %>']="\
-'<%= repo['DESCRIPTION'] %>','<%= repo['CATEGORY'] %>','<%= repo['MIRROR'] %>'"
+'<%= repo['DESCRIPTION'] %>','<%= repo['CATEGORY'] %>','<%= repo['MIRROR'] %>'<% if repo['NAME'] -%>,'<%= repo['NAME'] %>'<% end -%>"
 <% end -%>
 
 )
