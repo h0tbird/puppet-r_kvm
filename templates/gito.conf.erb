@@ -12,3 +12,17 @@ readonly SSH_PUB_KEY='<%= @config['gito']['SSH_PUB_KEY'] %>'
 readonly TRUST_HOSTS='<%= @config['gito']['TRUST_HOSTS'] %>'
 readonly HOST_BRIDGE='<%= @config['gito']['HOST_BRIDGE'] %>'
 readonly IFACE='<%= @config['gito']['IFACE'] %>'
+readonly LOG_FILE='<%= @config['gito']['LOG_FILE'] %>'
+
+#------------------------------------------------------------------------------
+# Repos: <remote url> <description> <category> <mirror> <local name>
+#------------------------------------------------------------------------------
+
+declare -rA REPOS=(
+
+<% @config['gito']['REPOS'].each do |repo| %>
+['<%= repo['URL'] %>']="\
+'<%= repo['DESCRIPTION'] %>','<%= repo['CATEGORY'] %>','<%= repo['MIRROR'] %>'"
+<% end -%>
+
+)
