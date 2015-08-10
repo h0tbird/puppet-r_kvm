@@ -83,11 +83,11 @@ function resize_coreos_image() {
 }
 
 function generate_tap_interfaces() {
-  for i in $(brctl show | awk '/^core/ {print $1}'); do
-    ip l del ${NAME}_eth${i#core} &> /dev/null
-    ip tuntap a d ${NAME}_eth${i#core} m tap || return 1
-    brctl addif ${i} ${NAME}_eth${i#core} || return 1
-    ip l s dev ${NAME}_eth${i#core} up || return 1
+  for i in 0 1; do
+    ip l del ${NAME}_eth${i} &> /dev/null
+    ip tuntap a d ${NAME}_eth${i} m tap || return 1
+    brctl addif core0 ${NAME}_eth${i} || return 1
+    ip l s dev ${NAME}_eth${i} up || return 1
   done; return 0
 }
 
@@ -107,8 +107,7 @@ function validate_cloud_config() {
 }
 
 function dynamic_netdev() {
-  local end=$(($(brctl show | awk '/^core/ {i++} END{print i}') - 1))
-  for i in $(seq 0 $end); do
+  for i in 0 1; do
     local addr="0x$((i+3))"
     echo -n "-netdev tap,ifname=${NAME}_eth${i},id=hostnet${i},vhost=on,script=no,downscript=no "
     echo -n "-device virtio-net-pci,netdev=hostnet${i},id=net${i},romfile=,bus=pci.0,addr=${addr},mac=$(genmac eth${i}) "
