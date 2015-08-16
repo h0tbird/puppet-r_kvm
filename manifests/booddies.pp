@@ -1,5 +1,7 @@
 class r_kvm::booddies {
 
+  $config = hiera('Booddies')
+
   #----------------------
   # Install the package:
   #----------------------
@@ -8,23 +10,26 @@ class r_kvm::booddies {
     ensure => latest,
   }
 
-  file { ['/var/lib/booddies',
-          '/var/lib/booddies/boot',
-          '/var/lib/booddies/data',
-          '/var/lib/booddies/gito',
-          '/var/lib/booddies/regi',
-          '/var/log/booddies']:
+  file { ['/var/lib/booddies','/var/log/booddies']:
     ensure => directory,
     owner  => 'root',
     group  => 'root',
     mode   => '0755',
   }
 
+  ['boot','data','gito','regi'].each |$item| {
+
+    file { $config["${item}"]['DATA_DIR']:
+      ensure => directory,
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0755',
+    }
+  }
+
   #-------------------------
   # Configure the services:
   #-------------------------
-
-  $config = hiera('Booddies')
 
   ['boot','cgit','data','gito','regi'].each |$file| {
 
