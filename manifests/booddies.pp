@@ -52,13 +52,13 @@ class r_kvm::booddies {
 
   file {
 
-    ['/data','/data/boot','/data/data','/data/boot/dnsmasq']:
+    "${config['boot']['DATA_DIR']}/dnsmasq":
       ensure => directory,
       owner  => 'root',
       group  => 'root',
       mode   => '0755';
 
-    '/data/boot/dnsmasq/dnsmasq.leases':
+    "${config['boot']['DATA_DIR']}/dnsmasq/dnsmasq.leases":
       ensure  => file,
       content => template("${module_name}/dnsmasq.leases.erb"),
       owner   => 'root',
@@ -67,7 +67,7 @@ class r_kvm::booddies {
       replace => false,
       before  => File['boot'];
 
-    '/data/boot/dnsmasq/dhcp_hosts':
+    "${config['boot']['DATA_DIR']}/dnsmasq/dhcp_hosts":
       ensure  => file,
       content => template("${module_name}/dhcp_hosts.erb"),
       owner   => 'root',
@@ -82,14 +82,14 @@ class r_kvm::booddies {
 
   vcsrepo {
 
-    '/data/boot/pxelinux':
+    "${config['boot']['DATA_DIR']}/pxelinux":
       ensure   => present,
       provider => git,
       source   => 'http://gito01/cgit/config-pxelinux',
       revision => 'master',
       before   => File['boot'];
 
-    '/data/data/kickstart':
+    "${config['data']['DATA_DIR']}/kickstart":
       ensure   => present,
       provider => git,
       source   => 'http://gito01/cgit/config-kickstart',
