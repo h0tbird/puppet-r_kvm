@@ -68,12 +68,11 @@ class r_kvm::booddies {
       before  => File['boot'];
 
     "${config['boot']['DATA_DIR']}/dnsmasq/dhcp_hosts":
-      ensure  => file,
-      content => template("${module_name}/dhcp_hosts.erb"),
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0644',
-      before  => File['boot'];
+      ensure => file,
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0644',
+      before => File['boot'];
   }
 
   #---------------------------------------
