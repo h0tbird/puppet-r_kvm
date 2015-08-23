@@ -44,6 +44,16 @@ scrape_configs:
 <% @masters.each do |master| -%>
     - <%= master %><% if @domain -%>.<%= @domain %><% end -%>:2379
 <% end -%>
+    labels:
+      group: masters
+  - targets:
+<% 12.times do |id| -%>
+<% if !@masters.include?("core-#{id+1}") -%>
+ - core-<%= id+1 %><% if @domain -%>.<%= @domain %><% end -%>:2379
+<% end -%>
+<% end -%>
+    labels:
+      group: proxies
 
 #------------------------------------------------------------------------------
 # Scrape cAdvisor:
