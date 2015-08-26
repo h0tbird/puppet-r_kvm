@@ -1,3 +1,11 @@
-by_group:container_cpu_system_seconds_total:sum_rate_1m = sum(rate(container_cpu_system_seconds_total[1m])) by (group)
-by_group:container_cpu_user_seconds_total:sum_rate_1m = sum(rate(container_cpu_user_seconds_total[1m])) by (group)
-by_group:container_cpu_usage_seconds_total:sum_rate_1m = sum(rate(container_cpu_usage_seconds_total[1m])) by (group)
+container_cpu_system_seconds_total:sum_rate_1m:by_group = sum(rate(container_cpu_system_seconds_total[1m])) by (group)
+container_cpu_user_seconds_total:sum_rate_1m:by_group = sum(rate(container_cpu_user_seconds_total[1m])) by (group)
+container_cpu_usage_seconds_total:sum_rate_1m:by_group = sum(rate(container_cpu_usage_seconds_total[1m])) by (group)
+
+etcd_store_reads_total:sum_rate_1m:by_action = sum(rate(etcd_store_reads_total{job="etcd"}[1m])) by (action)
+etcd_store_writes_total:max_rate_1m:by_action = max(rate(etcd_store_writes_total{job="etcd"}[1m])) by (action)
+etcd_store_watch_requests_total:sum_rate_1m = sum(rate(etcd_store_watch_requests_total{job="etcd"}[1m]))
+etcd_store_watchers:sum = sum(etcd_store_watchers{job="etcd"})
+etcd_proxy_handled_total:sum_rate_1m:by_method = sum(rate(etcd_proxy_handled_total{job="etcd"}[1m])) by (method)
+etcd_proxy_handling_duration_seconds_bucket:get:histogram_quantile = histogram_quantile(0.9, sum(increase(etcd_proxy_handling_duration_seconds_bucket{job="etcd",method="GET"}[5m])) by (le))*1000
+etcd_proxy_handling_duration_seconds_bucket:no_get:histogram_quantile = histogram_quantile(0.9, sum(increase(etcd_proxy_handling_duration_seconds_bucket{job="etcd",method!="GET"}[5m])) by (le))*1000
