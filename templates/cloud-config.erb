@@ -92,6 +92,21 @@ coreos:
      Bridge=docker0
      DHCP=no
 
+  - name: etc-hosts-record.service
+    command: start
+    content: |
+     [Unit]
+     Description=Stores IP and hostname in etcd
+     Requires=etcd2.service
+     After=etcd2.service
+
+     [Service]
+     ExecStart=/bin/bash -c '\
+       while true; do \
+         etcdctl set /hosts/$(hostname) "$(hostname -i)$(hostname)"; \
+         sleep 60; \
+       done'
+
  fleet:
   metadata: "role=<%= @role %><% if @masterid -%>,masterid=<%= @masterid %><% end -%>"
 
