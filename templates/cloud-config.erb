@@ -103,7 +103,8 @@ coreos:
      [Service]
      ExecStart=/bin/bash -c '\
        while true; do \
-         etcdctl set /hosts/$(hostname) "$(hostname -i)$(hostname)"; \
+         role=$(fleetctl list-machines | grep $(hostname -i) | egrep -o "slave|master" | uniq); \
+         etcdctl set /hosts/core/${role}/$(hostname) $(hostname -i); \
          sleep 60; \
        done'
 

@@ -15,10 +15,18 @@ rule_files:
  - /etc/prometheus/prometheus.rules
 
 #------------------------------------------------------------------------------
-# Scrape Prometheus:
+# File-based service discovery configurations:
 #-----------------------------------------------------------------------------
 
 scrape_configs:
+
+- job_name: default
+  file_sd_configs:
+  - names: ['/etc/prometheus/tgroups.json']
+
+#------------------------------------------------------------------------------
+# Scrape Prometheus:
+#-----------------------------------------------------------------------------
 
 - job_name: prometheus
   scrape_interval: 10s
