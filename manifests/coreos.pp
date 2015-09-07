@@ -68,6 +68,20 @@ class r_kvm::coreos {
         group    => 'root',
         mode     => '0644',
         require  => Exec['download_coreos'];
+
+      "/root/coreos/core-${id}/conf/confd/conf.d/hosts.toml":
+        ensure  => file,
+        content => template("${module_name}/hosts.toml.erb"),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644';
+
+      "/root/coreos/core-${id}/conf/confd/templates/hosts.tmpl":
+        ensure  => file,
+        content => template("${module_name}/hosts.tmpl.erb"),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644';
     }
 
     #---------------
