@@ -83,6 +83,10 @@ coreos:
      [Network]
      DHCP=v4
 
+     [DHCP]
+     CriticalConnection=true
+     ClientIdentifier=mac
+
   - name: 00-eth1.network
     runtime: false
     content: |
