@@ -1,6 +1,7 @@
 #cloud-config
 
 hostname: core-<%= @id %>.<%= @domain %>
+manage_etc_hosts: localhost
 
 write_files:
 
