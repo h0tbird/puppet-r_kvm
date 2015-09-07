@@ -27,10 +27,17 @@ class r_kvm::coreos {
       $masterid = inline_template("<%= @masters.index(\"core-#{@id}\") + 1%>")
     } else { $role = 'slave' }
 
+    #-------------------
+    # All core-x hosts:
+    #-------------------
+
     file {
 
       ["/root/coreos/core-${id}",
        "/root/coreos/core-${id}/conf",
+       "/root/coreos/core-${id}/conf/confd",
+       "/root/coreos/core-${id}/conf/confd/conf.d",
+       "/root/coreos/core-${id}/conf/confd/templates",
        "/root/coreos/core-${id}/conf/openstack",
        "/root/coreos/core-${id}/conf/openstack/latest"]:
         ensure => directory,
@@ -62,6 +69,10 @@ class r_kvm::coreos {
         mode     => '0644',
         require  => Exec['download_coreos'];
     }
+
+    #---------------
+    # Masters only:
+    #---------------
 
     if $role == 'master' {
 
