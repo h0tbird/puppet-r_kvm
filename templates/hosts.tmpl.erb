@@ -11,3 +11,9 @@
 #----------------
 {{range gets "/hosts/core/slave/*"}}
 {{.Value}}      {{base .Key}}{{end}}
+
+#------------------
+# KVM hypervisors:
+#------------------
+{{range gets "/hosts/kvm/*"}}
+{{.Value}}      {{base .Key}}{{end}}
