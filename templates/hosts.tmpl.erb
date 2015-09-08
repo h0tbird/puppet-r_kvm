@@ -4,16 +4,16 @@
 # CoreOS masters:
 #-----------------
 {{range gets "/hosts/core/master/*"}}
-{{.Value}}      {{base .Key}}{{end}}
+{{.Value}}	{{base .Key}}{{end}}
 
 #----------------
 # CoreOS slaves:
 #----------------
 {{range gets "/hosts/core/slave/*"}}
-{{.Value}}      {{base .Key}}{{end}}
+{{.Value}}	{{base .Key}}{{end}}
 
 #------------------
 # KVM hypervisors:
 #------------------
 {{range gets "/hosts/kvm/*"}}
-{{.Value}}      {{base .Key}}{{end}}
+{{.Value}}	{{base .Key}}{{end}}
