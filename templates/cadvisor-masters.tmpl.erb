@@ -1,5 +1,5 @@
 - targets:{{range gets "/hosts/core/master/*"}}
-  - {{base .Key}}{{end}}
+  - {{base .Key}}:4194{{end}}
 
   labels:
     group: masters
