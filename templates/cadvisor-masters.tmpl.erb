@@ -1,5 +1,5 @@
-targets:{{range gets "/hosts/core/master/*"}}
+- targets:{{range gets "/hosts/core/master/*"}}
   - {{base .Key}}{{end}}
 
-labels:
-  group: masters
+  labels:
+    group: masters

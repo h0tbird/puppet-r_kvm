@@ -1,5 +1,5 @@
-targets:{{range gets "/hosts/core/slave/*"}}
+- targets:{{range gets "/hosts/core/slave/*"}}
   - {{base .Key}}{{end}}
 
-labels:
-  group: slaves
+  labels:
+    group: slaves
