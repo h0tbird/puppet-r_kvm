@@ -87,20 +87,34 @@ class r_kvm::coreos {
         group   => 'root',
         mode    => '0644';
 
-      #--------------------------------------------
-      # Confd: /etc/prometheus/targets/tgroups.yml
-      #--------------------------------------------
+      #--------------------------------------
+      # Confd: /etc/prometheus/targets/*.yml
+      #--------------------------------------
 
-      "/root/coreos/core-${id}/conf/confd/conf.d/tgroups.toml":
+      "/root/coreos/core-${id}/conf/confd/conf.d/cadvisor-masters.toml":
         ensure  => file,
-        content => template("${module_name}/tgroups.toml.erb"),
+        content => template("${module_name}/cadvisor-masters.toml.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
 
-      "/root/coreos/core-${id}/conf/confd/templates/tgroups.tmpl":
+      "/root/coreos/core-${id}/conf/confd/templates/cadvisor-masters.tmpl":
         ensure  => file,
-        content => template("${module_name}/tgroups.tmpl.erb"),
+        content => template("${module_name}/cadvisor-masters.tmpl.erb"),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644';
+
+      "/root/coreos/core-${id}/conf/confd/conf.d/cadvisor-slaves.toml":
+        ensure  => file,
+        content => template("${module_name}/cadvisor-slaves.toml.erb"),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644';
+
+      "/root/coreos/core-${id}/conf/confd/templates/cadvisor-slaves.tmpl":
+        ensure  => file,
+        content => template("${module_name}/cadvisor-slaves.tmpl.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
