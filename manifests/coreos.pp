@@ -69,6 +69,10 @@ class r_kvm::coreos {
         mode     => '0644',
         require  => Exec['download_coreos'];
 
+      #-------------------
+      # Confd: /etc/hosts
+      #-------------------
+
       "/root/coreos/core-${id}/conf/confd/conf.d/hosts.toml":
         ensure  => file,
         content => template("${module_name}/hosts.toml.erb"),
@@ -79,6 +83,24 @@ class r_kvm::coreos {
       "/root/coreos/core-${id}/conf/confd/templates/hosts.tmpl":
         ensure  => file,
         content => template("${module_name}/hosts.tmpl.erb"),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644';
+
+      #--------------------------------------------
+      # Confd: /etc/prometheus/targets/tgroups.yml
+      #--------------------------------------------
+
+      "/root/coreos/core-${id}/conf/confd/conf.d/tgroups.toml":
+        ensure  => file,
+        content => template("${module_name}/tgroups.toml.erb"),
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0644';
+
+      "/root/coreos/core-${id}/conf/confd/templates/tgroups.tmpl":
+        ensure  => file,
+        content => template("${module_name}/tgroups.tmpl.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
