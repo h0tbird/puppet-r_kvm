@@ -1,0 +1,5 @@
+- targets:{{range gets "/hosts/core/slave/*"}}
+  - {{base .Key}}:2379{{end}}
+
+  labels:
+    group: proxies
