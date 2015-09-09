@@ -47,14 +47,14 @@ class r_kvm::coreos {
 
       "/root/coreos/core-${id}/conf/openstack/latest/user_data":
         ensure  => file,
-        content => template("${module_name}/cloud-config.erb"),
+        content => template("${module_name}/coreos/cloud-config.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
 
       "/root/coreos/core-${id}/conf/coreos.conf":
         ensure  => file,
-        content => template("${module_name}/coreos.conf.erb"),
+        content => template("${module_name}/coreos/coreos.conf.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
@@ -132,7 +132,7 @@ class r_kvm::coreos {
 
         "/root/coreos/core-${id}/conf/ceph/populate_etcd":
           ensure  => file,
-          content => template("${module_name}/populate_etcd.erb"),
+          content => template("${module_name}/ceph/populate_etcd.erb"),
           owner   => 'root',
           group   => 'root',
           mode    => '0755';
