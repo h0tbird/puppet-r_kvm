@@ -41,7 +41,7 @@ scrape_configs:
   scrape_interval: 10s
   scheme: http
   file_sd_configs:
-  - names: ['/etc/sd-targets/etcd-*.yml']
+  - names: ['/etc/sd-targets/etcd.yml']
 
 #------------------------------------------------------------------------------
 # Scrape cAdvisor:
@@ -51,7 +51,7 @@ scrape_configs:
   scrape_interval: 10s
   scheme: http
   file_sd_configs:
-  - names: ['/etc/sd-targets/cadvisor-*.yml']
+  - names: ['/etc/sd-targets/cadvisor.yml']
 
 #------------------------------------------------------------------------------
 # Scrape nodes:
