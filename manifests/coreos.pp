@@ -190,6 +190,24 @@ class r_kvm::coreos {
           owner   => 'root',
           group   => 'root',
           mode    => '0644';
+
+        #------------------------------------------
+        # Confd: /etc/prometheus/targets/nodes.yml
+        #------------------------------------------
+
+        "/root/coreos/core-${id}/conf/confd/conf.d/nodes.toml":
+          ensure  => file,
+          content => template("${module_name}/confd/nodes.toml.erb"),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0644';
+
+        "/root/coreos/core-${id}/conf/confd/templates/nodes.tmpl":
+          ensure  => file,
+          content => template("${module_name}/confd/nodes.tmpl.erb"),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0644';
       }
     }
   }
