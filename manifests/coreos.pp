@@ -75,14 +75,14 @@ class r_kvm::coreos {
 
       "/root/coreos/core-${id}/conf/confd/conf.d/hosts.toml":
         ensure  => file,
-        content => template("${module_name}/hosts.toml.erb"),
+        content => template("${module_name}/confd/hosts.toml.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
 
       "/root/coreos/core-${id}/conf/confd/templates/hosts.tmpl":
         ensure  => file,
-        content => template("${module_name}/hosts.tmpl.erb"),
+        content => template("${module_name}/confd/hosts.tmpl.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
@@ -143,14 +143,14 @@ class r_kvm::coreos {
 
         "/root/coreos/core-${id}/conf/confd/conf.d/cadvisor.toml":
           ensure  => file,
-          content => template("${module_name}/cadvisor.toml.erb"),
+          content => template("${module_name}/confd/cadvisor.toml.erb"),
           owner   => 'root',
           group   => 'root',
           mode    => '0644';
 
         "/root/coreos/core-${id}/conf/confd/templates/cadvisor.tmpl":
           ensure  => file,
-          content => template("${module_name}/cadvisor.tmpl.erb"),
+          content => template("${module_name}/confd/cadvisor.tmpl.erb"),
           owner   => 'root',
           group   => 'root',
           mode    => '0644';
@@ -161,14 +161,14 @@ class r_kvm::coreos {
 
         "/root/coreos/core-${id}/conf/confd/conf.d/etcd.toml":
           ensure  => file,
-          content => template("${module_name}/etcd.toml.erb"),
+          content => template("${module_name}/confd/etcd.toml.erb"),
           owner   => 'root',
           group   => 'root',
           mode    => '0644';
 
         "/root/coreos/core-${id}/conf/confd/templates/etcd.tmpl":
           ensure  => file,
-          content => template("${module_name}/etcd.tmpl.erb"),
+          content => template("${module_name}/confd/etcd.tmpl.erb"),
           owner   => 'root',
           group   => 'root',
           mode    => '0644';
@@ -179,14 +179,14 @@ class r_kvm::coreos {
 
         "/root/coreos/core-${id}/conf/confd/conf.d/prometheus.toml":
           ensure  => file,
-          content => template("${module_name}/prometheus.toml.erb"),
+          content => template("${module_name}/confd/prometheus.toml.erb"),
           owner   => 'root',
           group   => 'root',
           mode    => '0644';
 
         "/root/coreos/core-${id}/conf/confd/templates/prometheus.tmpl":
           ensure  => file,
-          content => template("${module_name}/prometheus.tmpl.erb"),
+          content => template("${module_name}/confd/prometheus.tmpl.erb"),
           owner   => 'root',
           group   => 'root',
           mode    => '0644';
