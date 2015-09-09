@@ -1,0 +1,13 @@
+[Unit]
+Description=Stores IP and hostname in etcd
+Wants=basic.target
+After=basic.target network.target
+
+[Service]
+ExecStart=/bin/bash -c '\
+  while true; do \
+    IP=$$(dig $$(hostname) +short); \
+    PEERS="http://core-1:2379,http://core-5:2379,http://core-9:2379"; \
+    etcdctl -C $${PEERS} set /hosts/kvm/$$(hostname) $${IP}; \
+    sleep 60; \
+  done'

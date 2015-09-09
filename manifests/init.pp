@@ -9,5 +9,6 @@ class r_kvm {
   class  { "::${module_name}::coreos":        } ->
   class  { "::${module_name}::booddies":      } ->
   class  { "::${module_name}::node_exporter": } ->
+  class  { "::${module_name}::etcd":          } ->
   anchor { "${module_name}_end":              }
 }
