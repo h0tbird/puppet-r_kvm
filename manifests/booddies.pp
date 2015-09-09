@@ -36,7 +36,7 @@ class r_kvm::booddies {
     file { $file:
       path    => "/etc/booddies/${file}.conf",
       ensure  => file,
-      content => template("${module_name}/${file}.conf.erb"),
+      content => template("${module_name}/booddies/${file}.conf.erb"),
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
@@ -60,7 +60,7 @@ class r_kvm::booddies {
 
     "${config['boot']['DATA_DIR']}/dnsmasq/dnsmasq.leases":
       ensure  => file,
-      content => template("${module_name}/dnsmasq.leases.erb"),
+      content => template("${module_name}/booddies/dnsmasq.leases.erb"),
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
