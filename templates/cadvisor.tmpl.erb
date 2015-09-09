@@ -1,5 +1,8 @@
 - targets:{{range gets "/hosts/core/master/*"}}
   - {{base .Key}}:4194{{end}}
-
   labels:
     group: masters
+- targets:{{range gets "/hosts/core/slave/*"}}
+  - {{base .Key}}:4194{{end}}
+  labels:
+    group: slaves

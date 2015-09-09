@@ -91,30 +91,16 @@ class r_kvm::coreos {
       # Confd: /etc/prometheus/targets/cadvisor-*.yml
       #-----------------------------------------------
 
-      "/root/coreos/core-${id}/conf/confd/conf.d/cadvisor-masters.toml":
+      "/root/coreos/core-${id}/conf/confd/conf.d/cadvisor.toml":
         ensure  => file,
-        content => template("${module_name}/cadvisor-masters.toml.erb"),
+        content => template("${module_name}/cadvisor.toml.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
 
-      "/root/coreos/core-${id}/conf/confd/templates/cadvisor-masters.tmpl":
+      "/root/coreos/core-${id}/conf/confd/templates/cadvisor.tmpl":
         ensure  => file,
-        content => template("${module_name}/cadvisor-masters.tmpl.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
-
-      "/root/coreos/core-${id}/conf/confd/conf.d/cadvisor-slaves.toml":
-        ensure  => file,
-        content => template("${module_name}/cadvisor-slaves.toml.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
-
-      "/root/coreos/core-${id}/conf/confd/templates/cadvisor-slaves.tmpl":
-        ensure  => file,
-        content => template("${module_name}/cadvisor-slaves.tmpl.erb"),
+        content => template("${module_name}/cadvisor.tmpl.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
@@ -123,30 +109,16 @@ class r_kvm::coreos {
       # Confd: /etc/prometheus/targets/etcd-*.yml
       #-------------------------------------------
 
-      "/root/coreos/core-${id}/conf/confd/conf.d/etcd-masters.toml":
+      "/root/coreos/core-${id}/conf/confd/conf.d/etcd.toml":
         ensure  => file,
-        content => template("${module_name}/etcd-masters.toml.erb"),
+        content => template("${module_name}/etcd.toml.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
 
-      "/root/coreos/core-${id}/conf/confd/templates/etcd-masters.tmpl":
+      "/root/coreos/core-${id}/conf/confd/templates/etcd.tmpl":
         ensure  => file,
-        content => template("${module_name}/etcd-masters.tmpl.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
-
-      "/root/coreos/core-${id}/conf/confd/conf.d/etcd-slaves.toml":
-        ensure  => file,
-        content => template("${module_name}/etcd-slaves.toml.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
-
-      "/root/coreos/core-${id}/conf/confd/templates/etcd-slaves.tmpl":
-        ensure  => file,
-        content => template("${module_name}/etcd-slaves.tmpl.erb"),
+        content => template("${module_name}/etcd.tmpl.erb"),
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
