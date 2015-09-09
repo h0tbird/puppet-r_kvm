@@ -1,9 +1,12 @@
 #cloud-config
 
 hostname: core-<%= @id %>.<%= @domain %>
-manage_etc_hosts: localhost
 
 write_files:
+
+ - path: /etc/hosts
+   content: |
+    # /etc/hosts
 
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
    content: |
