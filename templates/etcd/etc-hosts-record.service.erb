@@ -7,7 +7,7 @@ After=basic.target network.target
 ExecStart=/bin/bash -c '\
   while true; do \
     IP=$$(dig $$(hostname) +short); \
-    PEERS="http://core-1:2379,http://core-5:2379,http://core-9:2379"; \
+    PEERS="<% @masters.each do |master| -%>http://<%= master %>:2379,<% end %>"; \
     etcdctl -C $${PEERS} set /hosts/kvm/$$(hostname) $${IP}; \
     sleep 60; \
   done'

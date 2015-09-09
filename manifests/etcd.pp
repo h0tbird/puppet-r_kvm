@@ -12,6 +12,8 @@ class r_kvm::etcd {
   # Config the service:
   #---------------------
 
+  $masters = hiera('MasterHosts')
+
   file { '/lib/systemd/system/etc-hosts-record.service':
     ensure  => present,
     content => template("${module_name}/etcd/etc-hosts-record.service.erb"),
