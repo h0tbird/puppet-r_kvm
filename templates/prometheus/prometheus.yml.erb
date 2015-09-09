@@ -57,8 +57,5 @@ scrape_configs:
 - job_name: node
   scrape_interval: 10s
   scheme: http
-  target_groups:
-  - targets:
-    - kvm-1<% if @domain -%>.<%= @domain %><% end -%>:9100
-    - kvm-2<% if @domain -%>.<%= @domain %><% end -%>:9100
-    - kvm-3<% if @domain -%>.<%= @domain %><% end -%>:9100
+  file_sd_configs:
+  - names: ['/etc/sd-targets/nodes.yml']
