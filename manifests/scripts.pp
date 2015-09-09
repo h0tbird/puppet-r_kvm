@@ -8,7 +8,7 @@ class r_kvm::scripts {
 
     file { "/usr/local/sbin/${file}":
       ensure  => present,
-      content => template("${module_name}/${file}.erb"),
+      content => template("${module_name}/kvm/${file}.erb"),
       owner   => 'root',
       group   => 'root',
       mode    => '0755',

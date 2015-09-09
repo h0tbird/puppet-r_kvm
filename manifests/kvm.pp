@@ -16,7 +16,7 @@ class r_kvm::kvm {
 
     file { '/etc/ksmtuned.conf':
       ensure  => present,
-      content => template("${module_name}/ksmtuned.conf.erb"),
+      content => template("${module_name}/kvm/ksmtuned.conf.erb"),
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
