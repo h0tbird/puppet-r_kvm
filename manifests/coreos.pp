@@ -86,60 +86,6 @@ class r_kvm::coreos {
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
-
-      #---------------------------------------------
-      # Confd: /etc/prometheus/targets/cadvisor.yml
-      #---------------------------------------------
-
-      "/root/coreos/core-${id}/conf/confd/conf.d/cadvisor.toml":
-        ensure  => file,
-        content => template("${module_name}/cadvisor.toml.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
-
-      "/root/coreos/core-${id}/conf/confd/templates/cadvisor.tmpl":
-        ensure  => file,
-        content => template("${module_name}/cadvisor.tmpl.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
-
-      #-----------------------------------------
-      # Confd: /etc/prometheus/targets/etcd.yml
-      #-----------------------------------------
-
-      "/root/coreos/core-${id}/conf/confd/conf.d/etcd.toml":
-        ensure  => file,
-        content => template("${module_name}/etcd.toml.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
-
-      "/root/coreos/core-${id}/conf/confd/templates/etcd.tmpl":
-        ensure  => file,
-        content => template("${module_name}/etcd.tmpl.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
-
-      #-----------------------------------------------
-      # Confd: /etc/prometheus/targets/prometheus.yml
-      #-----------------------------------------------
-
-      "/root/coreos/core-${id}/conf/confd/conf.d/prometheus.toml":
-        ensure  => file,
-        content => template("${module_name}/prometheus.toml.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
-
-      "/root/coreos/core-${id}/conf/confd/templates/prometheus.tmpl":
-        ensure  => file,
-        content => template("${module_name}/prometheus.tmpl.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
     }
 
     #---------------
@@ -190,6 +136,60 @@ class r_kvm::coreos {
           owner   => 'root',
           group   => 'root',
           mode    => '0755';
+
+        #---------------------------------------------
+        # Confd: /etc/prometheus/targets/cadvisor.yml
+        #---------------------------------------------
+
+        "/root/coreos/core-${id}/conf/confd/conf.d/cadvisor.toml":
+          ensure  => file,
+          content => template("${module_name}/cadvisor.toml.erb"),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0644';
+
+        "/root/coreos/core-${id}/conf/confd/templates/cadvisor.tmpl":
+          ensure  => file,
+          content => template("${module_name}/cadvisor.tmpl.erb"),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0644';
+
+        #-----------------------------------------
+        # Confd: /etc/prometheus/targets/etcd.yml
+        #-----------------------------------------
+
+        "/root/coreos/core-${id}/conf/confd/conf.d/etcd.toml":
+          ensure  => file,
+          content => template("${module_name}/etcd.toml.erb"),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0644';
+
+        "/root/coreos/core-${id}/conf/confd/templates/etcd.tmpl":
+          ensure  => file,
+          content => template("${module_name}/etcd.tmpl.erb"),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0644';
+
+        #-----------------------------------------------
+        # Confd: /etc/prometheus/targets/prometheus.yml
+        #-----------------------------------------------
+
+        "/root/coreos/core-${id}/conf/confd/conf.d/prometheus.toml":
+          ensure  => file,
+          content => template("${module_name}/prometheus.toml.erb"),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0644';
+
+        "/root/coreos/core-${id}/conf/confd/templates/prometheus.tmpl":
+          ensure  => file,
+          content => template("${module_name}/prometheus.tmpl.erb"),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0644';
       }
     }
   }
