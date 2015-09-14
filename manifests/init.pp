@@ -7,8 +7,8 @@ class r_kvm {
   class  { "::${module_name}::scripts":       } ->
   class  { "::${module_name}::ssh":           } ->
   class  { "::${module_name}::coreos":        } ->
-  class  { "::${module_name}::booddies":      } ->
   class  { "::${module_name}::node_exporter": } ->
   class  { "::${module_name}::etcd":          } ->
+  class  { "::${module_name}::booddies":      } ->
   anchor { "${module_name}_end":              }
 }
