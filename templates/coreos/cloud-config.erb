@@ -43,6 +43,20 @@ write_files:
     ChallengeResponseAuthentication no
     PermitUserEnvironment yes
 
+ - path: /usr/local/bin/rbd
+   permissions: 0755
+   owner: root:root
+   content: |
+    #!/bin/bash
+    docker run -it --rm \
+    --privileged \
+    --name rbd \
+    --net host \
+    --volume /dev:/dev \
+    --volume /sys:/sys \
+    --volume /etc/ceph:/etc/ceph \
+    ceph/base rbd $@
+
 coreos:
 
  units:
