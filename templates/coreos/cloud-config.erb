@@ -50,6 +50,7 @@ write_files:
     #!/bin/bash
     docker run -i --rm \
     --privileged \
+    --pid host \
     --name rbd \
     --net host \
     --volume /dev:/dev \
