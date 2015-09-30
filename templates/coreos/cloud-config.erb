@@ -63,10 +63,10 @@ write_files:
    owner: root:root
    content: |
     #!/bin/bash
-    docker run -i --rm \
+    docker run -it --rm \
     --privileged \
     --pid host \
-    --name rbd \
+    --name ceph \
     --net host \
     --volume /dev:/dev \
     --volume /sys:/sys \
