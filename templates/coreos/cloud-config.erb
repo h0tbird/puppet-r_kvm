@@ -134,6 +134,25 @@ coreos:
          sleep 60; \
        done'
 
+  - name: docker-volume-rbd.service
+    command: start
+    content: |
+     [Unit]
+     Description=Docker RBD volume plugin
+     Requires=docker.service
+     After=docker.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+
+     ExecStartPre=-/bin/bash -c '\
+       wget -q http://data01/coreos/docker-volume-rbd -O /opt/bin/docker-volume-rbd; \
+       chmod 755 /opt/bin/docker-volume-rbd'
+
+     ExecStart=/opt/bin/docker-volume-rbd
+
  fleet:
   metadata: "role=<%= @role %><% if @masterid -%>,masterid=<%= @masterid %><% end -%>"
 
