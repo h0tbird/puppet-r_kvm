@@ -58,6 +58,21 @@ write_files:
     --volume /etc/ceph:/etc/ceph \
     ceph/base rbd $@
 
+ - path: /opt/bin/ceph
+   permissions: 0755
+   owner: root:root
+   content: |
+    #!/bin/bash
+    docker run -i --rm \
+    --privileged \
+    --pid host \
+    --name rbd \
+    --net host \
+    --volume /dev:/dev \
+    --volume /sys:/sys \
+    --volume /etc/ceph:/etc/ceph \
+    ceph/base ceph $@
+
 coreos:
 
  units:
