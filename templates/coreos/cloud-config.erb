@@ -56,7 +56,8 @@ write_files:
     --volume /dev:/dev \
     --volume /sys:/sys \
     --volume /etc/ceph:/etc/ceph \
-    ceph/base rbd $@
+    --entrypoint /usr/bin/rbd \
+    ceph/base $@
 
  - path: /opt/bin/ceph
    permissions: 0755
@@ -71,7 +72,8 @@ write_files:
     --volume /dev:/dev \
     --volume /sys:/sys \
     --volume /etc/ceph:/etc/ceph \
-    ceph/base ceph $@
+    --entrypoint /usr/bin/ceph \
+    ceph/base $@
 
 coreos:
 
