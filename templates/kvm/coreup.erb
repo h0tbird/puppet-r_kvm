@@ -78,7 +78,7 @@ function download_coreos_image() {
 }
 
 function resize_coreos_image() {
-  qemu-img resize ${IMGDIR}/${NAME}.img +20G &> /dev/null && \
+  qemu-img resize ${IMGDIR}/${NAME}.img +10G &> /dev/null && \
   return 0 || return 1
 }
 
