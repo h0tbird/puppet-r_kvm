@@ -75,6 +75,22 @@ write_files:
     --entrypoint /usr/bin/ceph \
     regi01:5000/ceph/daemon $@
 
+ - path: /opt/bin/rados
+   permissions: 0755
+   owner: root:root
+   content: |
+    #!/bin/bash
+    docker run -it --rm \
+    --privileged \
+    --pid host \
+    --name rados \
+    --net host \
+    --volume /dev:/dev \
+    --volume /sys:/sys \
+    --volume /etc/ceph:/etc/ceph \
+    --entrypoint /usr/bin/rados \
+    regi01:5000/ceph/daemon $@
+
 coreos:
 
  units:
