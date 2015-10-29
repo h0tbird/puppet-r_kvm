@@ -9,6 +9,7 @@ readonly NAME=$1
 readonly DOMAIN='<%= @domain %>'
 readonly VM_OUI='52:54:00'
 readonly MAXVMS=4
+readonly IMG_SIZE='10G'
 
 # Servers:
 readonly DATA_SERVER='data01.<%= @domain %>'
@@ -78,7 +79,7 @@ function download_coreos_image() {
 }
 
 function resize_coreos_image() {
-  qemu-img resize ${IMGDIR}/${NAME}.img +10G &> /dev/null && \
+  qemu-img resize ${IMGDIR}/${NAME}.img ${IMG_SIZE} &> /dev/null && \
   return 0 || return 1
 }
 
@@ -212,8 +213,8 @@ function main() {
   }
 
   # Resize the CoreOS disk image:
-  readonly IMGSIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
-  [ "${IMGSIZE}" -lt "30000000000" ] && {
+  readonly SIZE=`qemu-img info --output=json ${IMGDIR}/${NAME}.img | jq '.["virtual-size"]'`
+  [ "${SIZE}" -lt "$((${IMG_SIZE%G}*1024**3))" ] && {
     MSG="[${NAME}] Resizing CoreOS disk image..."; log "${MSG}"
     (action "${MSG}" resize_coreos_image) && \
     log 'OK! Image has new size' || {
