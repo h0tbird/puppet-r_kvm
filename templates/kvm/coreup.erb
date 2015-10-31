@@ -144,8 +144,9 @@ function create_vm() {
   -daemonize \
   $(dynamic_netdev) \
   \
-  -drive if=none,file=${IMGDIR}/${NAME}.img,id=drive-virtio-disk0 \
-  -device virtio-blk-pci,scsi=off,drive=drive-virtio-disk0,id=virtio-disk0 \
+  -drive id=disk0,if=none,cache=unsafe,format=raw,file=${IMGDIR}/${NAME}.img \
+  -device driver=virtio-scsi-pci,id=scsi0 \
+  -device scsi-hd,drive=disk0 \
   \
   -fsdev local,id=conf,security_model=none,readonly,path=${CFGDIR} \
   -device virtio-9p-pci,fsdev=conf,mount_tag=config-2 \
