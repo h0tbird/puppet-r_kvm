@@ -83,6 +83,12 @@ function resize_coreos_image() {
   return 0 || return 1
 }
 
+function convert_coreos_image() {
+  qemu-img convert -O raw -S 0 ${IMGDIR}/${NAME}.img ${IMGDIR}/${NAME}.raw && \
+  rm -f ${IMGDIR}/${NAME}.img && mv ${IMGDIR}/${NAME}.raw ${IMGDIR}/${NAME}.img && \
+  return 0 || return 1
+}
+
 function generate_tap_interfaces() {
   for i in 0 1; do
     ip l del ${NAME}_eth${i} &> /dev/null
@@ -219,6 +225,15 @@ function main() {
     (action "${MSG}" resize_coreos_image) && \
     log 'OK! Image has new size' || {
       log 'Ops! Unable to resize the image'; exit 1
+    }
+  }
+
+  # Convert from qcow2 to raw format:
+  qemu-img info ${IMGDIR}/${NAME}.img | grep -q qcow2 && {
+    MSG="[${NAME}] Converting CoreOS disk image..."; log "${MSG}"
+    (action "${MSG}" convert_coreos_image) && \
+    log 'OK! Image converted' || {
+      log 'Ops! Unable to convert the image'; exit 1
     }
   }
 
