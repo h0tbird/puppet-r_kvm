@@ -122,8 +122,13 @@ function dynamic_netdev() {
 }
 
 function dynamic_drives() {
-  for drive in ${CEPH_DRIVES} ${HDFS_DRIVES}; do
-    [ -b "${drive}" ] && echo -n "-drive file=${drive},if=scsi,media=disk "
+  id=1; for drive in ${CEPH_DRIVES} ${HDFS_DRIVES}; do
+    [ -b "${drive}" ] && {
+      echo -n "-drive id=disk${id},if=none,cache=none,aio=native,format=raw,file=${drive} "
+      echo -n "-device driver=virtio-scsi-pci,id=scsi${id} "
+      echo -n "-device scsi-hd,drive=disk${id} "
+      id=$(($id+1))
+    }
   done
 }
 
