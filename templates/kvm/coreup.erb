@@ -149,7 +149,7 @@ function create_vm() {
   -daemonize \
   $(dynamic_netdev) \
   \
-  -drive id=disk0,if=none,cache=unsafe,format=raw,file=${IMGDIR}/${NAME}.img \
+  -drive id=disk0,if=none,cache=none,aio=native,format=raw,file=${IMGDIR}/${NAME}.img \
   -device driver=virtio-scsi-pci,id=scsi0 \
   -device scsi-hd,drive=disk0 \
   \
