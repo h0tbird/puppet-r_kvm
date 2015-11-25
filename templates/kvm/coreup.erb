@@ -15,7 +15,7 @@ readonly NAME=$1
 readonly DOMAIN='<%= @domain %>'
 readonly VM_OUI='52:54:00'
 readonly MAXVMS=4
-readonly KVM_DISK=30
+readonly KVM_DISK=50
 readonly IMG_SIZE=$(((${HOST_DISK}-${KVM_DISK})/${MAXVMS}))
 
 # Servers:
