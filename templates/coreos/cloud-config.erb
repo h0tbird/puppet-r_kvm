@@ -51,7 +51,6 @@ write_files:
     docker run -i --rm \
     --privileged \
     --pid host \
-    --name rbd \
     --net host \
     --volume /dev:/dev \
     --volume /sys:/sys \
@@ -67,7 +66,6 @@ write_files:
     docker run -it --rm \
     --privileged \
     --pid host \
-    --name ceph \
     --net host \
     --volume /dev:/dev \
     --volume /sys:/sys \
@@ -83,7 +81,6 @@ write_files:
     docker run -it --rm \
     --privileged \
     --pid host \
-    --name rados \
     --net host \
     --volume /dev:/dev \
     --volume /sys:/sys \
