@@ -8,6 +8,10 @@ write_files:
    content: |
     # /etc/hosts
 
+ - path: /etc/resolv.conf
+   content: |
+    # /etc/resolv.conf
+
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
    content: |
     [Service]
