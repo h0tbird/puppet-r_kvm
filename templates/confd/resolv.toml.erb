@@ -2,4 +2,4 @@
 src = "resolv.tmpl"
 dest = "/etc/resolv-2.conf"
 keys = [ "/mesos/dns" ]
-reload_cmd = "grep nameserver /run/systemd/resolve/resolv.conf >> /etc/resolv-2.conf"
+reload_cmd = "grep nameserver /run/systemd/resolve/resolv.conf >> /etc/resolv-2.conf; ln -fs resolv-2.conf /etc/resolv.conf"
