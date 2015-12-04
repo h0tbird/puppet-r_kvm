@@ -8,9 +8,10 @@ write_files:
    content: |
     # /etc/hosts
 
- - path: /etc/resolv-2.conf
+ - path: /etc/systemd/system/systemd-resolved.d/50-link-resolv.conf
    content: |
-    # /etc/resolv-2.conf
+    [Service]
+    ExecStop=ln -fs ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
    content: |
