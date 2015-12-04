@@ -8,7 +8,7 @@ write_files:
    content: |
     # /etc/hosts
 
- - path: /etc/systemd/system/systemd-resolved.d/50-link-resolv.conf
+ - path: /etc/systemd/system/systemd-resolved.service.d/50-link-resolv.conf
    content: |
     [Service]
     ExecStop=ln -fs ../run/systemd/resolve/resolv.conf /etc/resolv.conf
