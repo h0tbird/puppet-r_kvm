@@ -173,7 +173,8 @@ coreos:
     content: |
      [Unit]
      Description=Docker RBD volume plugin
-     Before=docker.service
+     Requires=docker.service
+     After=docker.service
 
      [Service]
      Restart=on-failure
