@@ -11,7 +11,8 @@ write_files:
  - path: /etc/systemd/system/systemd-resolved.service.d/50-link-resolv.conf
    content: |
     [Service]
-    ExecStop=/usr/bin/ln -fs ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ExecStartPre=-/usr/bin/ln -fs ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ExecStartPost=-/usr/bin/ln -fs resolv.dyn /etc/resolv.conf
 
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
    content: |
