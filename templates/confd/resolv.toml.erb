@@ -1,5 +1,5 @@
 [template]
 src = "resolv.tmpl"
-dest = "/host/etc/resolv-2.conf"
+dest = "/host/etc/.resolv.confd"
 keys = [ "/mesos/dns" ]
-reload_cmd = "grep nameserver /host/run/systemd/resolve/resolv.conf >> /host/etc/resolv-2.conf; ln -fs resolv-2.conf /host/etc/resolv.conf"
+reload_cmd = "cp /host/etc/.resolv.confd /host/etc/resolv.dyn && grep nameserver /host/run/systemd/resolve/resolv.conf >> /host/etc/resolv.dyn && ln -fs resolv.dyn /host/etc/resolv.conf"
