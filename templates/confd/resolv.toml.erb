@@ -2,4 +2,4 @@
 src = "resolv.tmpl"
 dest = "/host/etc/.resolv.confd"
 keys = [ "/mesos/dns" ]
-reload_cmd = "cp /host/etc/.resolv.confd /host/etc/resolv.dyn && grep nameserver /host/run/systemd/resolve/resolv.conf >> /host/etc/resolv.dyn && ln -fs resolv.dyn /host/etc/resolv.conf"
+reload_cmd = "cp /host/etc/.resolv.confd /host/etc/resolv.etcd && cat /host/run/systemd/resolve/resolv.conf | awk '/^nameserver/ {print; exit}' >> /host/etc/resolv.etcd && ln -fs resolv.etcd /host/etc/resolv.conf"

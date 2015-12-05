@@ -11,8 +11,9 @@ write_files:
  - path: /etc/systemd/system/systemd-resolved.service.d/50-link-resolv.conf
    content: |
     [Service]
+    ProtectSystem=true
     ExecStartPre=-/usr/bin/ln -fs ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-    ExecStartPost=-/usr/bin/ln -fs resolv.dyn /etc/resolv.conf
+    ExecStartPost=-/usr/bin/bash -c "[ -f /etc/resolv.etcd ] && ln -fs resolv.etcd /etc/resolv.conf"
 
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
    content: |
