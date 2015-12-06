@@ -12,8 +12,9 @@ write_files:
    content: |
     [Service]
     ProtectSystem=true
+    ExecStartPre=-/usr/bin/rm -f /etc/.resolv.confd /etc/resolv.etcd
+    ExecStartPre=-/usr/bin/echo > /run/systemd/resolve/resolv.conf
     ExecStartPre=-/usr/bin/ln -fs ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-    ExecStartPost=-/usr/bin/bash -c "[ -f /etc/resolv.etcd ] && ln -fs resolv.etcd /etc/resolv.conf"
 
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
    content: |
