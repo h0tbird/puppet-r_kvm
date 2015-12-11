@@ -33,8 +33,9 @@ write_files:
     alias dim='docker images'
     alias dps='docker ps'
     alias dip="docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
-    alias drm='docker rm -v $(docker ps -qaf "status=exited")'
-    alias drmi='docker rmi $(docker images -qf "dangling=true")'
+    alias drm='docker rm -v $(docker ps -qaf status=exited)'
+    alias drmi='docker rmi $(docker images -qf dangling=true)'
+    alias drmv='docker volume rm $(docker volume ls -qf dangling=true)'
 
  - path: /etc/ssh/sshd_config
    permissions: 0600
