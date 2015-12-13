@@ -14,6 +14,7 @@ write_files:
     Type=oneshot
     RemainAfterExit=yes
     Restart=no
+    WatchdogSec=0
     ExecStartPre=-/usr/bin/rm -f /etc/.resolv.confd /etc/resolv.etcd
     ExecStartPre=-/usr/bin/echo > /run/systemd/resolve/resolv.conf
     ExecStartPre=-/usr/bin/ln -fs ../run/systemd/resolve/resolv.conf /etc/resolv.conf
