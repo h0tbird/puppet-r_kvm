@@ -19,7 +19,7 @@ write_files:
     ExecStartPre=-/usr/bin/echo > /run/systemd/resolve/resolv.conf
     ExecStartPre=-/usr/bin/ln -fs ../run/systemd/resolve/resolv.conf /etc/resolv.conf
     ExecStart=
-    ExecStart=/usr/bin/timeout --preserve-status 5 /usr/lib/systemd/systemd-resolved
+    ExecStart=/usr/bin/bash -c "timeout --preserve-status 5 /usr/lib/systemd/systemd-resolved"
     ProtectSystem=true
 
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
