@@ -11,10 +11,14 @@ write_files:
  - path: /etc/systemd/system/systemd-resolved.service.d/50-link-resolv.conf
    content: |
     [Service]
-    ProtectSystem=true
+    Type=oneshot
+    RemainAfterExit=yes
     ExecStartPre=-/usr/bin/rm -f /etc/.resolv.confd /etc/resolv.etcd
     ExecStartPre=-/usr/bin/echo > /run/systemd/resolve/resolv.conf
     ExecStartPre=-/usr/bin/ln -fs ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ExecStart=
+    ExecStart=/usr/bin/timeout --preserve-status 5 /usr/lib/systemd/systemd-resolved
+    ProtectSystem=true
 
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
    content: |
