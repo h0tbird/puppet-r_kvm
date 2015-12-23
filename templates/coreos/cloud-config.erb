@@ -103,6 +103,16 @@ write_files:
     --entrypoint /usr/bin/rados \
     regi01:5000/ceph/daemon:infernalis $@
 
+ - path: /opt/bin/loopssh
+   permissions: 0755
+   owner: root:root
+   content: |
+    #!/bin/bash
+    A=$(fleetctl list-machines -fields=ip -no-legend)
+    B=$(for i in $A; do dig -x $i +short; done | sort -t '-' -k 2n)
+    for i in $B; do ssh -o UserKnownHostsFile=/dev/null \
+    -o StrictHostKeyChecking=no $i -C "$*"; done
+
 coreos:
 
  units:
