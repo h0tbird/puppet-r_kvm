@@ -17,6 +17,7 @@ readonly VM_OUI='52:54:00'
 readonly MAXVMS=4
 readonly KVM_DISK=50
 readonly IMG_SIZE=$(((${HOST_DISK}-${KVM_DISK})/${MAXVMS}))
+readonly VM_SOCKETS=2
 
 # Servers:
 readonly DATA_SERVER='data01.<%= @domain %>'
@@ -88,7 +89,7 @@ function resize_coreos_image() {
 function convert_coreos_image() {
   qemu-img convert -O raw -S 0 ${IMGDIR}/${NAME}.img ${IMGDIR}/${NAME}.raw && \
   rm -f ${IMGDIR}/${NAME}.img && mv ${IMGDIR}/${NAME}.raw ${IMGDIR}/${NAME}.img && \
-  return 0 || return 1
+  sync && return 0 || return 1
 }
 
 function generate_tap_interfaces() {
@@ -138,7 +139,7 @@ function create_vm() {
   qemu-system-x86_64 \
   -enable-kvm \
   -name ${NAME}.${DOMAIN} \
-  -smp sockets=2,cores=$((${HOST_CORES} / ${MAXVMS})),threads=1 \
+  -smp sockets=${VM_SOCKETS},cores=$((${HOST_CORES} / ${MAXVMS})),threads=1 \
   -m $((${HOST_RAM} / ${MAXVMS})) \
   -rtc base=utc \
   -machine accel=kvm,mem-merge=on \
