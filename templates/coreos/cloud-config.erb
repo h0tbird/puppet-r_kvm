@@ -71,7 +71,7 @@ write_files:
     --volume /sys:/sys \
     --volume /etc/ceph:/etc/ceph \
     --entrypoint /usr/bin/rbd \
-    regi01:5000/ceph/daemon:infernalis $@
+    regi01:5000/h0tbird/ceph:v9.2.0-2 $@
 
  - path: /opt/bin/ceph
    permissions: 0755
@@ -86,7 +86,7 @@ write_files:
     --volume /sys:/sys \
     --volume /etc/ceph:/etc/ceph \
     --entrypoint /usr/bin/ceph \
-    regi01:5000/ceph/daemon:infernalis $@
+    regi01:5000/h0tbird/ceph:v9.2.0-2 $@
 
  - path: /opt/bin/rados
    permissions: 0755
@@ -101,7 +101,7 @@ write_files:
     --volume /sys:/sys \
     --volume /etc/ceph:/etc/ceph \
     --entrypoint /usr/bin/rados \
-    regi01:5000/ceph/daemon:infernalis $@
+    regi01:5000/h0tbird/ceph:v9.2.0-2 $@
 
  - path: /opt/bin/loopssh
    permissions: 0755
