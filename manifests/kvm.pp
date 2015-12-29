@@ -8,7 +8,6 @@ class r_kvm::kvm {
     ensure => present,
   }
 
-
   #--------------------------
   # Kernel samepage merging:
   #--------------------------
