@@ -9,6 +9,7 @@ readonly HOST_NAME=$(hostname -s)
 readonly HOST_CORES=$(grep -c processor /proc/cpuinfo)
 readonly HOST_RAM=$(free -m | awk '/Mem:/ {print $2}')
 readonly HOST_DISK=$(df -B1G / | awk '/dev/ {print $2}')
+readonly HOST_NUMAS=$(numactl -H | awk '/available/ {print $2}')
 
 # Settings:
 readonly NAME=$1
@@ -18,6 +19,7 @@ readonly MAXVMS=4
 readonly KVM_DISK=50
 readonly IMG_SIZE=$(((${HOST_DISK}-${KVM_DISK})/${MAXVMS}))
 readonly VM_SOCKETS=2
+readonly NUMA='all'
 
 # Servers:
 readonly DATA_SERVER='data01.<%= @domain %>'
@@ -136,7 +138,10 @@ function dynamic_drives() {
 }
 
 function create_vm() {
-  qemu-system-x86_64 \
+  numactl \
+  --cpunodebind=${NUMA} \
+  --membind=${NUMA} \
+  -- qemu-system-x86_64 \
   -enable-kvm \
   -name ${NAME}.${DOMAIN} \
   -smp sockets=${VM_SOCKETS},cores=$((${HOST_CORES} / ${MAXVMS})),threads=1 \
