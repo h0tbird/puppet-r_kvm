@@ -146,7 +146,6 @@ function create_vm() {
   -name ${NAME}.${DOMAIN} \
   -smp sockets=${VM_SOCKETS},cores=$((${HOST_CORES} / ${MAXVMS})),threads=1 \
   -m $(((${HOST_RAM} / ${MAXVMS}) - 64)) \
-  -mem-path /dev/hugepages \
   -rtc base=utc \
   -machine accel=kvm,mem-merge=on \
   -boot order=c,reboot-timeout=60,strict=on \
