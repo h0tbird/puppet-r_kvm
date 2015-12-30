@@ -19,7 +19,7 @@ readonly MAXVMS=4
 readonly KVM_DISK=50
 readonly IMG_SIZE=$(((${HOST_DISK}-${KVM_DISK})/${MAXVMS}))
 readonly VM_SOCKETS=2
-readonly NUMA='all'
+readonly NUMA=$(numad -w $((${HOST_CORES}/${MAXVMS})):$((${HOST_RAM}/${MAXVMS})))
 
 # Servers:
 readonly DATA_SERVER='data01.<%= @domain %>'
