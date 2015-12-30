@@ -4,7 +4,7 @@ class r_kvm::kvm {
   # Install packages:
   #-------------------
 
-  package { ['qemu-system-x86','seabios','qemu-img','numactl']:
+  package { ['qemu-system-x86','seabios','qemu-img','numactl','numad']:
     ensure => present,
   }
 
