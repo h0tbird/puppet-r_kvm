@@ -7,7 +7,7 @@
 # Host resources:
 readonly HOST_NAME=$(hostname -s)
 readonly HOST_CORES=$(grep -c processor /proc/cpuinfo)
-readonly HOST_RAM=$(free -m | awk '/Mem:/ {print $2}')
+readonly HOST_RAM=$(free -m | awk '/Mem:/ {print $2-1024}')
 readonly HOST_DISK=$(df -B1G / | awk '/dev/ {print $2}')
 readonly HOST_NUMAS=$(numactl -H | awk '/available/ {print $2}')
 

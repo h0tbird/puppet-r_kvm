@@ -12,7 +12,7 @@ class r_kvm::kvm {
   # Reserved 2MB huge pages:
   #--------------------------
 
-  $hugepages = floor(($memorysize_mb - 1000) / 2)
+  $hugepages = floor(($memorysize_mb - 1024) / 2)
   sysctl { 'vm.nr_hugepages': value => $hugepages }
 
   #--------------------------
