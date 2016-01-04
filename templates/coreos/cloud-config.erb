@@ -88,6 +88,8 @@ write_files:
       --directory="${machinepath}" \
       --capability=all \
       --share-system \
+      --bind=/dev:/dev \
+      --bind=/sys:/sys \
       --bind=/etc/ceph:/etc/ceph \
       --bind=/var/lib/ceph:/var/lib/ceph \
       --user="${CEPH_USER}" \
