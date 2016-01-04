@@ -58,50 +58,41 @@ write_files:
     ChallengeResponseAuthentication no
     PermitUserEnvironment yes
 
- - path: /opt/bin/rbd
-   permissions: 0755
-   owner: root:root
-   content: |
-    #!/bin/bash
-    docker run -i --rm \
-    --privileged \
-    --pid host \
-    --net host \
-    --volume /dev:/dev \
-    --volume /sys:/sys \
-    --volume /etc/ceph:/etc/ceph \
-    --entrypoint /usr/bin/rbd \
-    regi01:5000/h0tbird/ceph:v9.2.0-2 $@
-
  - path: /opt/bin/ceph
    permissions: 0755
    owner: root:root
    content: |
     #!/bin/bash
-    docker run -it --rm \
-    --privileged \
-    --pid host \
-    --net host \
-    --volume /dev:/dev \
-    --volume /sys:/sys \
-    --volume /etc/ceph:/etc/ceph \
-    --entrypoint /usr/bin/ceph \
-    regi01:5000/h0tbird/ceph:v9.2.0-2 $@
 
- - path: /opt/bin/rados
-   permissions: 0755
-   owner: root:root
-   content: |
-    #!/bin/bash
-    docker run -it --rm \
-    --privileged \
-    --pid host \
-    --net host \
-    --volume /dev:/dev \
-    --volume /sys:/sys \
-    --volume /etc/ceph:/etc/ceph \
-    --entrypoint /usr/bin/rados \
-    regi01:5000/h0tbird/ceph:v9.2.0-2 $@
+    readonly CEPH_DOCKER_IMAGE=regi01:5000/h0tbird/ceph
+    readonly CEPH_DOCKER_TAG=v9.2.0-2
+    readonly CEPH_USER=root
+
+    machinename=$(echo "${USER}-${CEPH_DOCKER_IMAGE}-${CEPH_DOCKER_TAG}" | sed -r 's/[^a-zA-Z0-9_.-]/_/g')
+    machinepath="/var/lib/toolbox/${machinename}"
+    osrelease="${machinepath}/etc/os-release"
+
+    [ -f ${osrelease} ] || {
+      sudo mkdir -p "${machinepath}"
+      sudo chown ${USER}: "${machinepath}"
+      docker pull "${CEPH_DOCKER_IMAGE}:${CEPH_DOCKER_TAG}"
+      docker run --name=${machinename} "${CEPH_DOCKER_IMAGE}:${CEPH_DOCKER_TAG}" /bin/true
+      docker export ${machinename} | sudo tar -x -C "${machinepath}" -f -
+      docker rm ${machinename}
+      sudo touch ${osrelease}
+    fi
+
+    [ "$1" == 'dryrun' ] || {
+      sudo systemd-nspawn \
+      --quiet \
+      --directory="${machinepath}" \
+      --capability=all \
+      --share-system \
+      --bind=/etc/ceph:/etc/ceph \
+      --bind=/var/lib/ceph:/var/lib/ceph \
+      --user="${CEPH_USER}" \
+      $(basename $0) "$@"
+    }
 
  - path: /opt/bin/loopssh
    permissions: 0755
@@ -188,6 +179,22 @@ coreos:
          fi; \
          sleep 60; \
        done'
+
+  - name: ceph-tools.service
+    command: start
+    content: |
+     [Unit]
+     Description=Ceph tools
+     Requires=docker.service
+     After=docker.service
+
+     [Service]
+     Type=oneshot
+     RemainAfterExit=yes
+     ExecStart=/bin/bash -c '\
+       [ -h /opt/bin/rbd ] || { ln -fs ceph /opt/bin/rbd; }; \
+       [ -h /opt/bin/rados ] || { ln -fs ceph /opt/bin/rados; }; \
+       ceph dryrun'
 
   - name: docker-volume-rbd.service
     command: start
