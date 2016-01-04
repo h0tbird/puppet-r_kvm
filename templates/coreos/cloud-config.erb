@@ -68,7 +68,7 @@ write_files:
     readonly CEPH_DOCKER_TAG=v9.2.0-2
     readonly CEPH_USER=root
 
-    machinename=$(echo "${USER}-${CEPH_DOCKER_IMAGE}-${CEPH_DOCKER_TAG}" | sed -r 's/[^a-zA-Z0-9_.-]/_/g')
+    machinename=$(echo "${CEPH_DOCKER_IMAGE}-${CEPH_DOCKER_TAG}" | sed -r 's/[^a-zA-Z0-9_.-]/_/g')
     machinepath="/var/lib/toolbox/${machinename}"
     osrelease="${machinepath}/etc/os-release"
 
