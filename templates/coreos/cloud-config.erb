@@ -80,7 +80,7 @@ write_files:
       docker export ${machinename} | sudo tar -x -C "${machinepath}" -f -
       docker rm ${machinename}
       sudo touch ${osrelease}
-    fi
+    }
 
     [ "$1" == 'dryrun' ] || {
       sudo systemd-nspawn \
@@ -212,7 +212,6 @@ coreos:
      Environment="PATH=/sbin:/bin:/usr/sbin:/usr/bin:/opt/bin"
      ExecStartPre=-/usr/bin/wget http://data01/coreos/docker-volume-rbd -O /opt/bin/docker-volume-rbd
      ExecStartPre=-/usr/bin/chmod 755 /opt/bin/docker-volume-rbd
-     ExecStartPre=-/usr/bin/sleep 30
      ExecStart=/opt/bin/docker-volume-rbd
 
  fleet:
