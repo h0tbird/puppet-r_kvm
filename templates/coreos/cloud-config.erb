@@ -166,7 +166,7 @@ coreos:
      DHCP=no
      Bridge=docker0
 
-  - name: etc-hosts-record.service
+  - name: etc-hosts.service
     command: start
     content: |
      [Unit]
@@ -183,11 +183,11 @@ coreos:
          etcdctl set /hosts/core/$${ROLE}/$$(hostname) $${IP}; \
        fi'
 
-  - name: etc-hosts-record.timer
+  - name: etc-hosts.timer
     command: start
     content: |
      [Unit]
-     Description=Run etc-hosts-record.service every 30 minutes
+     Description=Run etc-hosts.service every 30 minutes
 
      [Timer]
      OnBootSec=1min
