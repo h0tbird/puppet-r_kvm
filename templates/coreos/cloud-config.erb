@@ -193,6 +193,30 @@ coreos:
      OnBootSec=1min
      OnUnitActiveSec=30min
 
+  - name: docker-images-record.service
+    command: start
+    content: |
+     [Unit]
+     Description=Stores used docker images in etcd
+     Requires=etcd2.service
+     After=etcd2.service
+
+     [Service]
+     Type=oneshot
+     ExecStart=/bin/bash -c '\
+       etcdctl set /docker/images/$$(hostname) \
+       "$$(docker ps --format "{{.Image}}" | sort -u)"'
+
+  - name: docker-images-record.timer
+    command: start
+    content: |
+     [Unit]
+     Description=Run docker-images-record.service every 30 minutes
+
+     [Timer]
+     OnBootSec=1min
+     OnUnitActiveSec=30min
+
   - name: ceph-tools.service
     command: start
     content: |
