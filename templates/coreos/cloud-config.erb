@@ -193,25 +193,29 @@ coreos:
      OnBootSec=1min
      OnUnitActiveSec=30min
 
-  - name: docker-images-record.service
+  - name: docker-gc.service
     command: start
     content: |
      [Unit]
-     Description=Stores used docker images in etcd
-     Requires=etcd2.service
-     After=etcd2.service
+     Description=Docker garbage collector
+     Requires=etcd2.service docker.service
+     After=etcd2.service docker.service
 
      [Service]
      Type=oneshot
+     WorkingDirectory=/tmp
      ExecStart=/bin/bash -c '\
-       etcdctl set /docker/images/$$(hostname) \
-       "$$(docker ps --format "{{.Image}}" | sort -u)"'
+       docker ps -aq --no-trunc | sort -u > containers.all; \
+       docker ps -q --no-trunc | sort -u > containers.running; \
+       docker rm -v $$(comm -23 containers.all containers.running); \
+       docker rmi $$(docker images -qf dangling=true); \
+       etcdctl set /docker/images/$$(hostname) "$$(docker ps --format "{{.Image}}" | sort -u)"'
 
-  - name: docker-images-record.timer
+  - name: docker-gc.timer
     command: start
     content: |
      [Unit]
-     Description=Run docker-images-record.service every 30 minutes
+     Description=Run docker-gc.service every 30 minutes
 
      [Timer]
      OnBootSec=1min
