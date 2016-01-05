@@ -175,15 +175,23 @@ coreos:
      After=etcd2.service
 
      [Service]
+     Type=oneshot
      ExecStart=/bin/bash -c '\
-       while true; do \
-         IP=$$(dig $$(hostname) +short); \
-         ROLE=$$(fleetctl list-machines | grep $${IP} | egrep -o "slave|master" | uniq); \
-         if [ -n "$${ROLE}" ]; then \
-           etcdctl set /hosts/core/$${ROLE}/$$(hostname) $${IP}; \
-         fi; \
-         sleep 60; \
-       done'
+       IP=$$(dig $$(hostname) +short); \
+       ROLE=$$(fleetctl list-machines | grep $${IP} | egrep -o "slave|master" | uniq); \
+       if [ -n "$${ROLE}" ]; then \
+         etcdctl set /hosts/core/$${ROLE}/$$(hostname) $${IP}; \
+       fi'
+
+  -name: etc-hosts-record.timer
+   command: start
+   content: |
+    [Unit]
+    Description=Run etc-hosts-record.service every 30 minutes
+
+    [Timer]
+    OnBootSec=1min
+    OnUnitActiveSec=30min
 
   - name: ceph-tools.service
     command: start
