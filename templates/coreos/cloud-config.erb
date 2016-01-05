@@ -183,15 +183,15 @@ coreos:
          etcdctl set /hosts/core/$${ROLE}/$$(hostname) $${IP}; \
        fi'
 
-  -name: etc-hosts-record.timer
-   command: start
-   content: |
-    [Unit]
-    Description=Run etc-hosts-record.service every 30 minutes
+  - name: etc-hosts-record.timer
+    command: start
+    content: |
+     [Unit]
+     Description=Run etc-hosts-record.service every 30 minutes
 
-    [Timer]
-    OnBootSec=1min
-    OnUnitActiveSec=30min
+     [Timer]
+     OnBootSec=1min
+     OnUnitActiveSec=30min
 
   - name: ceph-tools.service
     command: start
