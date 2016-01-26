@@ -25,7 +25,7 @@ write_files:
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
    content: |
     [Service]
-    Environment='DOCKER_OPTS=--insecure-registry=regi01:5000 --insecure-registry=internal-registry-sys.marathon:5000 --registry-mirror=http://external-registry-sys.marathon:5000'
+    Environment='DOCKER_OPTS=--insecure-registry=regi01:5000 --registry-mirror=http://external-registry-sys.marathon:5000'
 
  - path: /home/core/.bashrc
    permissions: 0644
