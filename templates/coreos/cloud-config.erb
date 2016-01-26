@@ -24,7 +24,7 @@ write_files:
 
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
    content: |
-   [Service]
+    [Service]
     ExecStartPre=-/bin/bash -c '\
       wget -qP /tmp http://data01/secrets/certs.tar.bz2 && \
       tar -C /etc/docker/certs.d/internal-registry-sys.marathon:5000 -jxf /tmp/certs.tar.bz2 certs/server.crt && \
