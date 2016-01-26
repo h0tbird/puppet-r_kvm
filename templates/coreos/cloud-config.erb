@@ -27,6 +27,7 @@ write_files:
     [Service]
     ExecStartPre=-/bin/bash -c '\
       wget -qP /tmp http://data01/secrets/certs.tar.bz2 && \
+      mkdir -p /etc/docker/certs.d/internal-registry-sys.marathon:5000; \
       tar -C /etc/docker/certs.d/internal-registry-sys.marathon:5000 -jxf /tmp/certs.tar.bz2 certs/server.crt && \
       cd /etc/docker/certs.d/internal-registry-sys.marathon:5000 && \
       mv certs/server.crt ca.crt && rm -rf certs /tmp/certs.tar.bz2'
