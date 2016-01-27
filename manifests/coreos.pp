@@ -9,15 +9,20 @@ class r_kvm::coreos {
   $min = $ind + 1
   $max = $ind + 4
 
-  #----------------------------------------------------
-  # Iterate through: core-1, core-2, core-3 and core-4
-  #----------------------------------------------------
+  #----------------------------------
+  # Get the configuration from YAML:
+  #----------------------------------
 
   $masters = hiera('MasterHosts')
   $ceph_drives = hiera('CephDataDrives')
   $hdfs_drives = hiera('HDFSDataDrives')
   $ceph_config = hiera('CephConfig')
   $flannel_config = hiera('Flannel')
+  $docker_registry_ca = hiera('DockerRegistryCA')
+
+  #----------------------------------------------------
+  # Iterate through: core-1, core-2, core-3 and core-4
+  #----------------------------------------------------
 
   range("${min}", "${max}").each |$index, $id| {
 

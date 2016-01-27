@@ -22,15 +22,15 @@ write_files:
     ExecStart=/usr/bin/bash -c "/usr/lib/systemd/systemd-resolved & sleep 10; systemctl kill systemd-resolved"
     ProtectSystem=true
 
+ - path: /etc/docker/certs.d/internal-registry-sys.marathon:5000/ca.crt
+   permissions: 0644
+   owner: root
+   content: |
+    <%= @docker_registry_ca %>
+
  - path: /etc/systemd/system/docker.service.d/50-docker-opts.conf
    content: |
     [Service]
-    ExecStartPre=-/bin/bash -c '\
-      wget -qP /tmp http://data01/secrets/certs.tar.bz2 && \
-      mkdir -p /etc/docker/certs.d/internal-registry-sys.marathon:5000; \
-      tar -C /etc/docker/certs.d/internal-registry-sys.marathon:5000 -jxf /tmp/certs.tar.bz2 certs/server.crt && \
-      cd /etc/docker/certs.d/internal-registry-sys.marathon:5000 && \
-      mv certs/server.crt ca.crt && rm -rf certs /tmp/certs.tar.bz2'
     Environment='DOCKER_OPTS=--insecure-registry=regi01:5000 --registry-mirror=http://external-registry-sys.marathon:5000'
 
  - path: /home/core/.bashrc
