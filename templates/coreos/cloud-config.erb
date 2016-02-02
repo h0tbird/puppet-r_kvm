@@ -8,20 +8,6 @@ write_files:
    content: |
     # /etc/hosts
 
- - path: /etc/systemd/system/systemd-resolved.service.d/50-link-resolv.conf
-   content: |
-    [Service]
-    Type=oneshot
-    RemainAfterExit=yes
-    Restart=no
-    WatchdogSec=0
-    ExecStart=
-    ExecStartPre=-/usr/bin/rm -f /etc/.resolv.confd /etc/resolv.etcd
-    ExecStartPre=-/usr/bin/echo > /run/systemd/resolve/resolv.conf
-    ExecStartPre=-/usr/bin/ln -fs ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-    ExecStart=/usr/bin/bash -c "/usr/lib/systemd/systemd-resolved & sleep 10; systemctl kill systemd-resolved"
-    ProtectSystem=true
-
  - path: /etc/docker/certs.d/internal-registry-sys.marathon:5000/ca.crt
    permissions: 0644
    owner: root
