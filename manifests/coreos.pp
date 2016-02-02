@@ -91,24 +91,6 @@ class r_kvm::coreos {
         owner   => 'root',
         group   => 'root',
         mode    => '0644';
-
-      #-------------------------
-      # Confd: /etc/resolv.conf
-      #-------------------------
-
-      "/root/coreos/core-${id}/conf/confd/conf.d/resolv.toml":
-        ensure  => file,
-        content => template("${module_name}/confd/resolv.toml.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
-
-      "/root/coreos/core-${id}/conf/confd/templates/resolv.tmpl":
-        ensure  => file,
-        content => template("${module_name}/confd/resolv.tmpl.erb"),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0644';
     }
 
     #---------------

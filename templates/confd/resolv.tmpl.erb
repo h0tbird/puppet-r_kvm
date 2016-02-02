@@ -1,4 +1,0 @@
-{{$dns := getvs "/mesos/dns/*"}}{{if $dns}}search <%= @fqdn_3 %>.<%= @fqdn_2 %>.mesos
-options rotate{{range gets "/mesos/dns/*"}}
-{{.Value}}{{end}}
-{{end}}
